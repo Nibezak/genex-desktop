@@ -20,6 +20,7 @@ import type { SandboxRuntimeConfig } from "@anthropic-ai/sandbox-runtime";
 import { SandboxFolderKind, SandboxProblemCode, WindowsSetupNeed } from "../../src/shared/boot.ts";
 import { launchGameBridge } from "../../src/main/core/game-bridge-target.ts";
 import { openCodeEvents } from "../../src/substrate/engines/opencode.ts";
+import { piEvents } from "../../src/substrate/engines/pi.ts";
 import { HarnessHost } from "../../src/substrate/harness-host.ts";
 import {
   SandboxLaunchCode,
@@ -3402,6 +3403,30 @@ describe("ProcessSandbox on Windows", () => {
     const leftovers = (await readdir(w.sandbox.scratchDir)).filter((name) => name.startsWith(".stdin-"));
     assert.deepEqual(leftovers, [], "the stdin file is gone once the CLI has opened it");
     assert.equal(w.session.session.active, 0, "the CLI gave the session back");
+  });
+
+  it("delivers Pi's brief through the stdin file too", async () => {
+    // Pi reads its message from stdin; written down the pipe, it never reached a Windows session.
+    const w = await windowsSandbox();
+    const brief = "Write hello to out.txt\nit's $(echo ran)";
+    const cli = path.join(w.root, "pi.cjs");
+    await writeFile(
+      cli,
+      'process.stdout.write(JSON.stringify({ brief: require("node:fs").readFileSync(0, "utf8") }) + "\\n");\n',
+    );
+    const seen: Array<Record<string, unknown>> = [];
+    const invocation = {
+      argv: [cli.replaceAll("\\", "/")],
+      cwd: w.workspace,
+      prompt: brief,
+      env: {},
+      signal: new AbortController().signal,
+      domains: [],
+    };
+    const node = process.execPath.replaceAll("\\", "/");
+    for await (const event of piEvents(w.sandbox, node, invocation)) seen.push(event);
+    assert.deepEqual(seen, [{ brief }]);
+    assert.equal(w.session.session.active, 0, "Pi gave the session back");
   });
 
   it("drives a Play Protocol game it started, its requests reaching the game through the input relay", async () => {

@@ -147,7 +147,8 @@ the setup screen opens on `git-missing`. What differs from macOS:
   grants a link's target. npm's global prefix is granted whole: its `node_modules` are the global
   CLIs that run in the sandbox, OpenCode among them. Cursor's own folders (`~/.cursor`,
   `%APPDATA%\Cursor`) are granted at the sandbox's start, as OpenCode's are: its sessions run as
-  the sandbox user and read their sign-in there.
+  the sandbox user and read their sign-in there. So is Pi's agent folder (`piAgentDir`): Pi makes a
+  lock folder beside its sign-in file even to read it.
 - No Schannel client works under the write-restricted token (`System32\curl.exe`, PowerShell
   web requests, .NET `HttpClient`, `winget`), and Git for Windows' own `curl.exe` uses Schannel
   alone, so `curl` over HTTPS fails inside (`SEC_E_NO_CREDENTIALS`); plain HTTP through the proxy
@@ -157,7 +158,7 @@ the setup screen opens on `git-missing`. What differs from macOS:
   once it keeps a write grant for this user.
 - Neither `spawn()`'s environment nor stdin reaches the child: each run's variables
   (`windowsRunEnv`) go to an env file in scratch and its stdin to a file, each deleted by the
-  command as it reads it, for a long-lived process (`spawnLongLived`'s `stdin`, OpenCode's brief)
+  command as it reads it, for a long-lived process (`spawnLongLived`'s `stdin`, OpenCode's and Pi's briefs)
   as for a run. The host sends nothing down the stdin pipe the command swaps away. The harness hears the host over a loopback inbox
   ([`src/substrate/harness-inbox.ts`](../src/substrate/harness-inbox.ts)) whose first line must
   be the one-time `HARNESS_INBOX_TOKEN`; it answers on stdout. A process whose input goes on for
