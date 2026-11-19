@@ -434,6 +434,14 @@
     {
       "from": "- The shape that does work is **JSON parameters, then render**: the model",
       "to": "  impossible version."
+    },
+    {
+      "replace": " It answers in this folder as it is, before anything is\n   converted, so it comes first: if it says the lane is off, in-game calls\n   answer 404 here.",
+      "with": " If it says the lane is off, in-game calls\n   answer 404 here."
+    },
+    {
+      "replace": "2. `npx genex init --convert` — it connects this folder to a hosted Genex game\n   in place. The code, the files and this toolkit stay exactly as they are, and\n   generations still land in `./assets`. It is the user's yes that runs it, so\n   ask before you do if you have not already.\n3. Load `$genex-llm-in-games` — it arrives with the conversion and owns the\n   build:",
+      "with": "2. Load `$genex-llm-in-games` — it owns the\n   build:"
     }
   ],
   "genex-llm-in-games/SKILL.md": [
@@ -518,6 +526,10 @@
     {
       "replace": "Write the benchmark date and the model id beside them in `DESIGN.md`, so the\nnext person knows what the numbers describe. Do not add",
       "with": "Do not add"
+    },
+    {
+      "from": "- `npx genex llm price` re-prints the last run's recommendation without spending",
+      "to": "  request to re-run."
     }
   ],
   "genex-monetization/SKILL.md": [

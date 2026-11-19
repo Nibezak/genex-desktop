@@ -6,13 +6,14 @@ this preface, this preface wins.
 
 - `npx genex llm models`: `genex__cli {"command":"llm models"}`. `npx genex doctor`:
   `genex__cli {"command":"doctor"}`, or `genex__asset` with operation `status`.
-- `npx genex init --convert` does not apply in Studio. A game becomes a hosted Genex game when you
-  publish its first draft with `genex__publish {"operation":"draft"}` (the user approves it).
+- Only a game hosted on Genex can call a model. In Studio a game becomes one when you publish its
+  first draft with `genex__publish {"operation":"draft"}` (the user approves it); Genex's own
+  `npx genex init --convert` does not apply here, and the card's steps below leave it out.
 - Then read the full procedure with `genex__skill {"name":"genex-llm-in-games"}`.
 - Other commands map onto Studio tools as the `genex` skill describes
   (`genex__skill {"name":"genex"}`).
 
-<!-- upstream @genex-ai/cli-demo/templates/skills/genex-tool-llm/SKILL.md v1.43.6 sha256 aea8c0be5ca9c270a47d59b132c1774f9ae30e8f0d3df5abca832f3abcf55ae7 -->
+<!-- upstream @genex-ai/cli-demo/templates/skills/genex-tool-llm/SKILL.md v1.43.6 sha256 0242e18d886d5e5ce3462908bcb57ad90b225176eaeef96a94c79724b309961b -->
 ---
 name: genex-tool-llm
 description: A language model running while somebody PLAYS the finished game — an NPC that answers in its own words, a quest written from what the player typed, a prompt box in the game. On Genex the player pays and approves it, so this is a platform feature, never a key on the author's meter.
@@ -54,17 +55,12 @@ Any of these means a model at PLAY time, however it is phrased:
 ## Building it
 
 1. `npx genex llm models` — whether this stand serves the lane at all, and
-   which models. It answers in this folder as it is, before anything is
-   converted, so it comes first: if it says the lane is off, in-game calls
+   which models. If it says the lane is off, in-game calls
    answer 404 here. It prints
    the FEATURED models; `--all` lists the whole catalog. Whatever model is picked, the picker in the game
    shows the server's own label for it — a name you invent is a name that
    differs from the model they are billed for.
-2. `npx genex init --convert` — it connects this folder to a hosted Genex game
-   in place. The code, the files and this toolkit stay exactly as they are, and
-   generations still land in `./assets`. It is the user's yes that runs it, so
-   ask before you do if you have not already.
-3. Load `$genex-llm-in-games` — it arrives with the conversion and owns the
+2. Load `$genex-llm-in-games` — it owns the
    build: the SDK surface, one-time calls versus a standing budget, measuring
    the per-call ceiling before the game declares it, and honest handling of
    every refusal.
