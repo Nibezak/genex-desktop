@@ -109,6 +109,7 @@
   "tests/conformance/engine-limits.test.ts",
   "tests/conformance/engine-link-entries.test.ts",
   "tests/conformance/engine-ollama.test.ts",
+  "tests/conformance/engine-pi.test.ts",
   "tests/conformance/engine-steps-card.test.ts",
   "tests/conformance/engine-voice.test.ts",
   "tests/conformance/engines.test.ts",

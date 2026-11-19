@@ -2,8 +2,8 @@
  * OpenCode 2.x sessions with the real OpenCode CLI, inside Genex's real sandbox.
  *
  * The engine starts each session as it would for a person (its command line, environment and
- * sandbox); the real CLI runs it against `fake-openai-chat.ts` (a made-up provider in an OpenCode
- * config folder of the test's own), whose scripted turn runs one `node` command in the session's
+ * sandbox); the real CLI runs it against `fake-openai-chat.ts` (a provider in an OpenCode config
+ * folder of the test's own, signed in with a made-up key), whose scripted turn runs one `node` command in the session's
  * folder. Nothing reaches a model provider and no account is used. Opt-in, like every test that
  * needs this machine's own programs: `STUDIO_OPENCODE_CLI_TESTS=1` with an `opencode` 2.x the
  * engine can find (or `STUDIO_OPENCODE_BIN`).
@@ -19,7 +19,13 @@ import { OpenCodeEngine, type OpenCodeExec, openCodeEvents } from "../../src/sub
 import { LoopbackProtocol } from "../../src/substrate/linux-loopback-bridge.ts";
 import { ProcessSandbox } from "../../src/substrate/spawn.ts";
 import { anyLoopbackPort } from "../../src/main/core/genex-room.ts";
-import { FAKE_CHAT_DONE_TEXT, FAKE_CHAT_MODEL, type FakeChat, startFakeChat } from "../helpers/fake-openai-chat.ts";
+import {
+  FAKE_CHAT_DONE_TEXT,
+  FAKE_CHAT_MODEL,
+  FAKE_CHAT_PROVIDER,
+  type FakeChat,
+  startFakeChat,
+} from "../helpers/fake-openai-chat.ts";
 import { tmpDir } from "../helpers/tmp.ts";
 
 const LIVE = process.env.STUDIO_OPENCODE_CLI_TESTS === "1";
@@ -33,6 +39,30 @@ const PROBE_SOURCE = `import { writeFileSync } from "node:fs";\nwriteFileSync(${
 /** The folders OpenCode keeps its config, sign-ins, logs and catalog in: the test's own. */
 /** How many ports below a free one the made-up fenced range spans. */
 const FENCED_PORTS = 5;
+/** OpenCode's own name for its shell tool. */
+const SHELL_TOOL = "shell";
+/** The model the session picks, as OpenCode names it. */
+const MODEL = `${FAKE_CHAT_PROVIDER}/${FAKE_CHAT_MODEL}`;
+/**
+ * Where the fake provider listens. Newer 2.x reaches `127.0.0.1` past the sandbox's proxy, which a
+ * Mac session may; a Linux session's loopback is its own and a Windows session's is fenced, and
+ * both reach `127.0.0.2`, another address of this computer's own, through the proxy.
+ */
+const FAKE_HOST = process.platform === "darwin" ? "127.0.0.1" : "127.0.0.2";
+
+/** OpenCode's config naming the fake as a provider. */
+const providerConfig = (baseURL: string): string =>
+  JSON.stringify({
+    provider: {
+      [FAKE_CHAT_PROVIDER]: {
+        npm: "@ai-sdk/openai-compatible",
+        name: "Genex fake",
+        options: { baseURL, apiKey: "fake-key" },
+        models: { [FAKE_CHAT_MODEL]: { name: "Fake model" } },
+      },
+    },
+  });
+
 const OWN_FOLDERS = ["XDG_CONFIG_HOME", "XDG_DATA_HOME", "XDG_STATE_HOME", "XDG_CACHE_HOME"] as const;
 
 /** The real `opencode` binary. */
@@ -54,13 +84,16 @@ describe("OpenCode 2.x with the real CLI", { skip: !LIVE && "set STUDIO_OPENCODE
     binary = await openCodeBinary();
     version = (await runCommand(binary, ["--version"], { env: process.env, timeoutMs: VERSION_TIMEOUT_MS })).stdout;
     root = await tmpDir("opencode-live-");
-    fake = await startFakeChat("node probe.mjs");
+    fake = await startFakeChat(FAKE_HOST, SHELL_TOOL);
     for (const name of OWN_FOLDERS) {
       saved.set(name, process.env[name]);
       process.env[name] = path.join(root, "home", name.toLowerCase());
       await mkdir(path.join(process.env[name], "opencode"), { recursive: true });
     }
-    await writeFile(path.join(process.env.XDG_CONFIG_HOME ?? "", "opencode", "opencode.json"), fake.config);
+    await writeFile(
+      path.join(process.env.XDG_CONFIG_HOME ?? "", "opencode", "opencode.json"),
+      providerConfig(fake.baseUrl),
+    );
   });
 
   after(async () => {
@@ -83,7 +116,7 @@ describe("OpenCode 2.x with the real CLI", { skip: !LIVE && "set STUDIO_OPENCODE
         loopbackPorts: () => fenced ?? sandbox.loopbackPorts(),
       };
       try {
-        yield* openCodeEvents(session, binary, { ...invocation, domains: [...invocation.domains, fake.host] });
+        yield* openCodeEvents(session, binary, { ...invocation, domains: [...invocation.domains, FAKE_HOST] });
       } finally {
         await sandbox.dispose();
       }
@@ -103,7 +136,8 @@ describe("OpenCode 2.x with the real CLI", { skip: !LIVE && "set STUDIO_OPENCODE
     const dir = path.join(root, name);
     await mkdir(dir, { recursive: true });
     await writeFile(path.join(dir, "probe.mjs"), PROBE_SOURCE);
-    const result = await engine(fenced).delegate({ cwd: dir, prompt: "Run the probe.", model: FAKE_CHAT_MODEL });
+    fake.next("node probe.mjs");
+    const result = await engine(fenced).delegate({ cwd: dir, prompt: "Run the probe.", model: MODEL });
     assert.equal(result.ok, true, result.errorText);
     assert.equal(result.summary, FAKE_CHAT_DONE_TEXT);
     assert.ok(result.sessionId, "a session Continue can resume");

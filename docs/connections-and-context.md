@@ -147,7 +147,7 @@ A failure says why; Settings then adds the vendor's install guide. Sign in with 
 
 ## OpenRouter and OpenCode
 
-Both are metered (`billing: "metered"` in `shared/providers.ts`): every token is paid to someone,
+OpenRouter, OpenCode and Pi are metered (`billing: "metered"` in `shared/providers.ts`): every token is paid to someone,
 so `EngineRegistry` never offers one as a fallback or a first ready engine, and the sign-in gate's
 local finish and the reference judge never pick one. Only the person's explicit pick runs on them.
 
@@ -239,6 +239,62 @@ signed in the picker starts OpenCode's GPT models with the ones Codex lists (`ru
 `renderer/model-lineup.ts`). Recorded streams and listings: `tests/fixtures/transcripts/opencode-*`
 (OpenCode 1.18 and 2.0.20); `STUDIO_OPENCODE_CLI_TESTS=1` runs a real 2.x CLI in the real sandbox
 against a made-up provider (`opencode-cli-live.test.ts`).
+
+**Pi** ([pi.ts](../src/substrate/engines/pi.ts)) is the Pi coding agent (`pi --mode json`), not the
+`pi-ai` HTTP client. Sign in and `--list-models` run with `--no-extensions --offline`; studio never
+looks into Pi's sign-in (a session gets a copy of the file, below). Ready once `--list-models` lists
+a model; a Pi whose help lacks an option a session passes shows "Update needed" with Pi's guide
+(Genex runs `pi update` only for a Pi that is ready), and one that cannot start (no Node for its
+launcher) says it did not answer. Sessions run in `ProcessSandbox` (`readableHome`: `~/.pi`) with
+`--no-extensions --no-approve`: a game folder's own `.pi` settings and `.agents/skills` stay untrusted.
+Every session is told where Pi's folder is (`PI_CODING_AGENT_DIR`, `piAgentDir`): by default
+`~/.pi/agent`, or the folder the person moved it to with that variable, which is then fenced like
+`~/.pi` (`piHomes`).
+
+What Pi keeps in its agent folder it loads and runs outside the sandbox, for the person and for
+Genex's own model listing: `settings.json`, `models.json`, `trust.json`, `mcp.json`, the instruction
+files `AGENTS.md`, `SYSTEM.md` and `APPEND_SYSTEM.md`, `extensions`, `skills`, `prompts`, `themes`,
+`npm`, `bin`, and the sign-in file `auth.json`, where a stored key that starts with `!` is a command
+Pi runs. A session writes none of them. Pi still has to write beside them: a lock folder next to
+each file it reads (`auth.json.lock`), a renewed subscription sign-in, its catalog cache. How each
+system gives it that (`piWrites`):
+
+- **macOS and Linux**: every session runs on a folder of its own that stands for Pi's
+  ([pi-agent-view.ts](../src/substrate/engines/pi-agent-view.ts)):
+  `<agent>/genex/agent-<process>-<name>`, named in `PI_CODING_AGENT_DIR`. It is made new when the
+  session starts, before anything can write it, and never used again. In it `auth.json` and
+  `models-store.json` are copies of the person's (the bytes, which Genex never reads as anything
+  else) and are never copied back; every other entry is a link to the person's, read-only to the
+  session. A sign-in file that is there and cannot be read fails the session, as does a `genex` or
+  `genex/work` that is not a folder: Genex removes through those two names. The session writes that folder and `sessions` (Pi's transcripts, kept in the person's
+  folder). When the session ends its folder is renamed into `<agent>/genex/work`, which no session
+  writes, and removed there, so nothing is built or removed through a name a session could have
+  changed and nothing one session left reaches another. A folder whose Genex is gone is taken out
+  the same way when the next session starts. The person's own Pi never reads any of this. Two
+  things follow. A sign-in Pi renews during a session lasts that session: where the provider retires
+  the old one, the person's file is then out of date and a later session says to sign in to Pi
+  again. And a session's lock is not the person's Pi's: a session reads settings the person's Pi may
+  be writing at that moment. Linux denies a game's `.pi` only when it exists
+  (`gameSettingsDenyWrites`).
+- **Windows** has no link a session's user can read through, runs a session as the sandbox's own
+  user, grants whole folders and stamps no deny inside a sandboxed CLI's home, so there a session
+  can write all of Pi's folder, its settings, `models.json` and `auth.json` included
+  ([windows-sandbox.md](windows-sandbox.md)).
+
+Pi files a session under the folder it was started in, and its `--session-id` looks only there. A
+build runs in the game and a Plan or read-only turn in a folder of its own, so the turn that follows
+one from another folder continues the chat with `--fork <the session's file>`
+([pi-sessions.ts](../src/substrate/engines/pi-sessions.ts)): Pi copies the history into the turn's
+folder under a new id, which the turn reports as the session to continue. A Plan turn that follows a
+Plan turn runs from the same folder again and resumes in place. A turn's pictures are written under
+the engine's scratch and passed as `@file` arguments: Pi takes no file from the prompt's text.
+
+A provider status is read at the head of Pi's error (`401: {...}`), never a number inside the body
+it quotes, and an expired sign-in, a refresh the provider refuses (OAuth's `invalid_grant`) or one
+the credential store cannot write (a 401, or an errno naming `auth.json`) says to sign in again. A
+model the list has not named yet reaches its built-in provider's hosts; an unknown provider reaches
+only the `https` host in its `models.json`. No in-app installer (`installsInApp`): the row opens
+Pi's guide, to install it and to update one too old to run. Account can run `pi update` on a Pi that is ready. Streams: `tests/fixtures/transcripts/pi-*`.
 
 ## Grok Build
 
