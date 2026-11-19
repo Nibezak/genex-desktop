@@ -12,6 +12,7 @@ import { mkdir, readdir, realpath, symlink, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, it } from "node:test";
+import { setTimeout as sleep } from "node:timers/promises";
 import {
   PiEngine,
   type PiEngineOptions,
@@ -24,9 +25,18 @@ import { credentialHomes, piAgentDir, sandboxedCliHomes } from "../../src/substr
 import { hostsFromPiModelsJson, parsePiModels } from "../../src/substrate/engines/pi-cli.ts";
 import { translatePiEvent } from "../../src/substrate/engines/pi-events.ts";
 import { closePiView, openPiView } from "../../src/substrate/engines/pi-agent-view.ts";
+import {
+  type PiSignInRenewal,
+  piModelProvider,
+  piRenewalArgs,
+  piRenewsSignIn,
+  piSignInRenewals,
+  renewPiSignIn,
+} from "../../src/substrate/engines/pi-sign-in.ts";
 import { SandboxUnavailableError } from "../../src/substrate/sandbox-unavailable.ts";
 import { ProcessSandbox } from "../../src/substrate/spawn.ts";
 import { EngineError, type DelegateEvent } from "../../src/substrate/engines/types.ts";
+import { HOUR_MS } from "../../src/shared/duration.ts";
 import { PermissionMode } from "../../src/shared/permissions.ts";
 import { tmpDir } from "../helpers/tmp.ts";
 import { gitFile } from "../helpers/git.ts";
@@ -46,7 +56,7 @@ const ready = async () => ({ ready: true, path: "/usr/local/bin/pi", version: "0
 
 async function engineWith(
   stream: (invocation: PiInvocation) => AsyncIterable<Record<string, unknown>>,
-  where: Pick<PiEngineOptions, "env" | "home" | "platform"> = {},
+  where: Pick<PiEngineOptions, "env" | "home" | "platform" | "clock" | "renewSignIn" | "resolveCli"> = {},
 ) {
   const root = await realpath(await tmpDir("pi-engine-"));
   // A home of the test's own: a resumed session is looked up in Pi's folder there, never this machine's.
@@ -865,6 +875,326 @@ describe("Pi's sandbox", () => {
       assert.ok(builder?.sandbox.writableRoots.includes(dir), `the build commits through ${dir}, outside its folder`);
       assert.ok(!reader?.sandbox.writableRoots.includes(dir), `a read-only session writes no Git metadata (${dir})`);
     }
+  });
+});
+
+describe("Pi's sign-in before a session copies it", () => {
+  const MODEL = "anthropic/claude-sonnet";
+  /** A Pi that has the renewal command. */
+  const current = async () => ({ ready: true, path: "/usr/local/bin/pi", version: "1.5.2", detail: "ok" });
+  /** The first renewal a sign-in file needs, or null. */
+  const piSignInRenewal = (text: string, at: Parameters<typeof piSignInRenewals>[1]) =>
+    piSignInRenewals(text, at)[0] ?? null;
+  /** Pi's sign-in file with one subscription sign-in, as Pi 1.5.2 writes it. */
+  const subscription = (access: string, expires: number, more: Record<string, unknown> = {}) =>
+    JSON.stringify({ anthropic: { type: "oauth", access, refresh: `refresh-${access}`, expires }, ...more });
+
+  it("knows when a subscription sign-in would not outlast a session, and the lead that makes Pi renew it now", () => {
+    const now = Date.parse("2026-11-19T12:00:00Z");
+    const renewal = (expires: unknown, at: { provider?: string; life?: number } = {}) =>
+      piSignInRenewal(JSON.stringify({ anthropic: { type: "oauth", access: "a", refresh: "r", expires } }), {
+        now,
+        ...(at.provider === undefined ? {} : { provider: at.provider }),
+        life: () => at.life,
+      });
+    const soon = renewal(now + 10 * 60_000);
+    assert.equal(soon?.provider, "anthropic");
+    assert.equal(soon?.expires, now + 10 * 60_000);
+    assert.ok((soon?.minExpirySeconds ?? 0) > 10 * 60, "ten minutes left: a lead past that makes Pi renew at once");
+    assert.equal(renewal(now - HOUR_MS)?.minExpirySeconds, 300, "expired: Pi's own lead does it");
+    assert.equal(renewal(now + 8 * HOUR_MS), null, "eight hours left");
+    assert.equal(renewal(now + 10 * 60_000, { provider: "anthropic" })?.provider, "anthropic");
+    assert.equal(renewal(now + 10 * 60_000, { provider: "openai-codex" }), null, "another provider's session");
+    // A token that lasts an hour is renewed with half of it left, so a new one is never due too.
+    assert.equal(renewal(now + 40 * 60_000, { life: HOUR_MS }), null, "forty minutes left of an hour");
+    const hourly = renewal(now + 20 * 60_000, { life: HOUR_MS })?.minExpirySeconds ?? 0;
+    assert.ok(hourly > 20 * 60 && hourly < 30 * 60, `twenty minutes left of an hour: ${hourly}`);
+    assert.ok(renewal(now + 40 * 60_000), "and before a renewal showed how long a token lasts, it is due");
+
+    const two = JSON.stringify({
+      "openai-codex": { type: "oauth", access: "a", refresh: "r", expires: now + 30 * 60_000 },
+      anthropic: { type: "oauth", access: "a", refresh: "r", expires: now + 60 * 60_000 },
+      openrouter: { type: "api_key", key: "k", expires: now },
+    });
+    assert.deepEqual(
+      piSignInRenewals(two, { now }).map((renewal) => renewal.provider),
+      ["openai-codex", "anthropic"],
+      "with no model named Pi picks one: every subscription sign-in that is due, the first to expire first",
+    );
+    assert.equal(piSignInRenewal(two, { now, provider: "anthropic" })?.provider, "anthropic");
+    assert.equal(piSignInRenewal(two, { now, provider: "openrouter" }), null, "a stored key is not renewed");
+    assert.equal(piSignInRenewal(two, { now, provider: "toString" }), null, "only the file's own entries");
+  });
+
+  it("renews nothing for a file that is not Pi's sign-in, an entry Pi could not renew, or a name Pi would read as an option", () => {
+    const now = Date.parse("2026-11-19T12:00:00Z");
+    const soon = now + 60_000;
+    const hostileFiles = ["", "not json", "null", "[]", '"text"', "7", '{"anthropic": null}', '{"anthropic": "oauth"}'];
+    for (const text of hostileFiles) assert.equal(piSignInRenewal(text, { now }), null, JSON.stringify(text));
+    const hostileEntries: Array<Record<string, unknown>> = [
+      { type: "api_key", key: "!touch planted", expires: soon },
+      { type: "oauth", access: "a", expires: soon },
+      { type: "oauth", access: "a", refresh: 7, expires: soon },
+      { type: "oauth", access: "a", refresh: "r" },
+      { type: "oauth", access: "a", refresh: "r", expires: String(soon) },
+      { type: "oauth", access: "a", refresh: "r", expires: null },
+      { type: "OAuth", access: "a", refresh: "r", expires: soon },
+    ];
+    for (const entry of hostileEntries)
+      assert.equal(piSignInRenewal(JSON.stringify({ anthropic: entry }), { now }), null, JSON.stringify(entry));
+    const good = { type: "oauth", access: "a", refresh: "r", expires: soon };
+    for (const name of ["--model", "-e", "", "a b", "x;y", "$(id)", "../up", "a/b"])
+      assert.equal(piSignInRenewal(JSON.stringify({ [name]: good }), { now }), null, JSON.stringify(name));
+    assert.equal(piSignInRenewal(JSON.stringify({ "github-copilot": good }), { now })?.provider, "github-copilot");
+  });
+
+  it("names a model's provider, asks only a Pi that has the command, and asks it for one provider", () => {
+    assert.equal(piModelProvider("anthropic/claude-sonnet"), "anthropic");
+    assert.equal(piModelProvider("openrouter/meta/llama"), "openrouter");
+    for (const model of [undefined, "", "sonnet", "/sonnet"]) assert.equal(piModelProvider(model), undefined);
+    for (const version of ["0.83.0", "1.5.2", "pi 1.0.0"]) assert.equal(piRenewsSignIn(version), true, version);
+    // An older Pi has no `auth` command and would take the words as a prompt.
+    for (const version of [undefined, "", "live", "0.82.9", "0.83.0-beta.1"])
+      assert.equal(piRenewsSignIn(version), false, String(version));
+    assert.deepEqual(piRenewalArgs({ provider: "anthropic", expires: 0, minExpirySeconds: 660 }), [
+      "auth",
+      "print-bearer-token",
+      "--provider",
+      "anthropic",
+      "--min-expiry",
+      "660s",
+    ]);
+  });
+
+  it("on macOS and Linux has the person's own Pi renew a sign-in about to expire before a session copies it, once", {
+    skip: NO_LINKS,
+  }, async () => {
+    // What a session renews stays in its copy, and the provider takes the person's refresh token once.
+    const recorded = await events("pi-stream.jsonl");
+    for (const platform of VIEW_PLATFORMS) {
+      const home = await realpath(await tmpDir("pi-renew-"));
+      const agent = path.join(home, ".pi", "agent");
+      await mkdir(agent, { recursive: true });
+      const file = path.join(agent, "auth.json");
+      let now = Date.now();
+      await writeFile(file, subscription("access-1", now + 10 * 60_000));
+      const asked: PiSignInRenewal[] = [];
+      const renewSignIn = async (binary: string, renewal: PiSignInRenewal) => {
+        assert.equal(binary, "/usr/local/bin/pi", "the person's own Pi");
+        asked.push(renewal);
+        await writeFile(file, subscription("access-2", now + 8 * HOUR_MS));
+      };
+      const found: string[] = [];
+      const stream = (invocation: PiInvocation) => {
+        const copy = path.join(invocation.env.PI_CODING_AGENT_DIR ?? "", "auth.json");
+        found.push(JSON.parse(readFileSync(copy, "utf8")).anthropic.access);
+        return replay(recorded);
+      };
+      const { engine } = await engineWith(stream, {
+        home,
+        platform,
+        renewSignIn,
+        clock: () => now,
+        resolveCli: current,
+      });
+      await Promise.all([
+        engine.delegate({ cwd: await game(), prompt: "x", model: MODEL }),
+        engine.delegate({ cwd: await game(), prompt: "y", model: MODEL }),
+      ]);
+      await engine.complete({ messages: [{ role: "user", content: "judge" }], model: MODEL });
+      assert.deepEqual(
+        found,
+        ["access-2", "access-2", "access-2"],
+        `${platform}: every session copies the renewed one`,
+      );
+      assert.equal(asked.length, 1, "one renewal for the sessions that waited on it, none once renewed");
+      assert.equal(asked[0]?.provider, "anthropic");
+      assert.ok((asked[0]?.minExpirySeconds ?? 0) > 10 * 60, "a lead that makes Pi renew it at once");
+
+      // Eight hours is what the renewal showed a token lasts: the next is due with two hours left.
+      now += 5 * HOUR_MS;
+      await engine.delegate({ cwd: await game(), prompt: "x", model: MODEL });
+      assert.equal(asked.length, 1, "three hours left: it holds");
+      now += 2 * HOUR_MS;
+      await engine.delegate({ cwd: await game(), prompt: "x", model: MODEL });
+      assert.equal(asked.length, 2, "an hour left: renewed again");
+      await engine.delegate({ cwd: await game(), prompt: "x", model: "openrouter/meta/llama" });
+      await writeFile(file, subscription("access-3", now + 60_000, { openrouter: { type: "api_key", key: "k" } }));
+      await engine.delegate({ cwd: await game(), prompt: "x", model: "openrouter/meta/llama" });
+      assert.equal(asked.length, 2, "a session on a stored key renews no one's sign-in");
+    }
+  });
+
+  it("leaves a sign-in a renewal could not change for a while, and the session gets what there is", {
+    skip: NO_LINKS,
+  }, async () => {
+    const home = await realpath(await tmpDir("pi-renew-"));
+    const agent = path.join(home, ".pi", "agent");
+    await mkdir(agent, { recursive: true });
+    const file = path.join(agent, "auth.json");
+    let now = Date.now();
+    await writeFile(file, subscription("dead", now - 60_000));
+    const asked: PiSignInRenewal[] = [];
+    const found: string[] = [];
+    const stream = (invocation: PiInvocation) => {
+      const copy = path.join(invocation.env.PI_CODING_AGENT_DIR ?? "", "auth.json");
+      found.push(JSON.parse(readFileSync(copy, "utf8")).anthropic.access);
+      return replay([]);
+    };
+    const offline = async (_binary: string, renewal: PiSignInRenewal) => {
+      asked.push(renewal);
+      throw new Error("offline");
+    };
+    const { engine } = await engineWith(stream, {
+      home,
+      platform: "linux",
+      renewSignIn: offline,
+      clock: () => now,
+      resolveCli: current,
+    });
+    await engine.delegate({ cwd: await game(), prompt: "x", model: MODEL });
+    await engine.delegate({ cwd: await game(), prompt: "x", model: MODEL });
+    assert.equal(asked.length, 1, "not asked again at once");
+    assert.deepEqual(found, ["dead", "dead"], "the session still starts, and says what Pi says");
+    now += 10 * 60_000;
+    await engine.delegate({ cwd: await game(), prompt: "x", model: MODEL });
+    assert.equal(asked.length, 2, "and is tried again later: the failure may have passed");
+    await writeFile(file, subscription("signed-in-again", now + 60_000));
+    await engine.delegate({ cwd: await game(), prompt: "x", model: MODEL });
+    assert.equal(asked.length, 3, "a sign-in that changed is asked about at once");
+  });
+
+  it("learns how long a provider's tokens last, renews every due sign-in when Pi picks the model, and asks no Pi too old", {
+    skip: NO_LINKS,
+  }, async () => {
+    const home = await realpath(await tmpDir("pi-renew-"));
+    const agent = path.join(home, ".pi", "agent");
+    await mkdir(agent, { recursive: true });
+    const file = path.join(agent, "auth.json");
+    let now = Date.now();
+    const signIns = (anthropic: number, codex: number) =>
+      subscription("a", anthropic, { "openai-codex": { type: "oauth", access: "c", refresh: "r", expires: codex } });
+    // Codex's sign-in is dead and no renewal brings it back; Anthropic's tokens last an hour.
+    const dead = now - HOUR_MS;
+    await writeFile(file, signIns(now + 10 * 60_000, dead));
+    const asked: string[] = [];
+    const renewSignIn = async (_binary: string, renewal: PiSignInRenewal) => {
+      asked.push(renewal.provider);
+      if (renewal.provider === "anthropic") await writeFile(file, signIns(now + HOUR_MS, dead));
+    };
+    const where = { home, platform: "linux", renewSignIn, clock: () => now } as const;
+    const { engine } = await engineWith(() => replay([]), { ...where, resolveCli: current });
+    await engine.delegate({ cwd: await game(), prompt: "x" });
+    assert.deepEqual(asked, ["openai-codex", "anthropic"], "no model named: each due sign-in, not only the first");
+    now += 20 * 60_000;
+    await engine.delegate({ cwd: await game(), prompt: "x" });
+    assert.deepEqual(
+      asked.slice(2),
+      ["openai-codex"],
+      "forty minutes left of an hour holds; the dead one is tried again",
+    );
+    now += 60_000;
+    await engine.delegate({ cwd: await game(), prompt: "x" });
+    assert.equal(asked.length, 3, "and waits after that, holding up no one");
+    now += 19 * 60_000;
+    await engine.delegate({ cwd: await game(), prompt: "x", model: MODEL });
+    assert.deepEqual(asked.slice(3), ["anthropic"], "twenty minutes left of an hour: renewed");
+
+    // An older Pi has no `auth` command and would take the words as a prompt, outside the sandbox.
+    await writeFile(file, signIns(now + 60_000, dead));
+    for (const version of ["0.82.9", undefined]) {
+      const old = await engineWith(() => replay([]), {
+        ...where,
+        resolveCli: async () => ({
+          ready: true,
+          path: "/usr/local/bin/pi",
+          detail: "ok",
+          ...(version ? { version } : {}),
+        }),
+      });
+      await old.engine.delegate({ cwd: await game(), prompt: "x", model: MODEL });
+      assert.equal(old.seen.length, 1, "the session starts");
+    }
+    assert.equal(asked.length, 4, "a Pi too old, or one whose version cannot be read, is asked nothing");
+  });
+
+  it("on Windows asks for no renewal: a session there runs on Pi's own folder and renews Pi's own file", async () => {
+    const home = await realpath(await tmpDir("pi-renew-"));
+    const agent = path.join(home, ".pi", "agent");
+    await mkdir(agent, { recursive: true });
+    await writeFile(path.join(agent, "auth.json"), subscription("access-1", Date.now() + 60_000));
+    const asked: PiSignInRenewal[] = [];
+    const { engine, seen } = await engineWith(() => replay([]), {
+      home,
+      platform: "win32",
+      resolveCli: current,
+      renewSignIn: async (_binary, renewal) => {
+        asked.push(renewal);
+      },
+    });
+    await engine.delegate({ cwd: await game(), prompt: "x", model: MODEL });
+    assert.equal(seen.length, 1);
+    assert.deepEqual(asked, []);
+  });
+
+  it("waits only so long on a renewal, which Pi finishes and writes without being stopped, its output unread", {
+    skip: process.platform === "win32" && "a shell script stands in for pi",
+  }, async () => {
+    // Stopping Pi between the provider's answer and its write would leave the person a spent refresh token.
+    const root = await realpath(await tmpDir("pi-renewal-"));
+    const log = path.join(root, "log.txt");
+    const file = path.join(root, "auth.json");
+    await writeFile(file, subscription("access-1", Date.now() + 60_000));
+    const script = path.join(root, "pi.mjs");
+    await writeFile(
+      script,
+      `import { appendFileSync, writeFileSync } from "node:fs";
+const log = (line) => appendFileSync(${JSON.stringify(log)}, line + "\\n");
+log(process.argv.slice(2).join(" ") + " in " + process.cwd());
+process.on("SIGTERM", () => { log("stopped"); process.exit(1); });
+setTimeout(() => {
+  writeFileSync(${JSON.stringify(file)}, ${JSON.stringify(subscription("access-2", Date.now() + 8 * HOUR_MS))});
+  process.stdout.write("the-token\\n");
+  log("renewed");
+}, 1500);
+`,
+    );
+    const pi = path.join(root, "pi");
+    await writeFile(pi, `#!/bin/sh\nexec "${process.execPath}" "${script}" "$@"\n`, { mode: 0o755 });
+    const started = Date.now();
+    await renewPiSignIn(pi, {
+      env: { PATH: process.env.PATH ?? "" },
+      cwd: root,
+      renewal: { provider: "anthropic", expires: 0, minExpirySeconds: 120 },
+      waitMs: 200,
+    });
+    assert.ok(Date.now() - started < 1_200, "the session went on without the renewal");
+    const deadline = Date.now() + 5_000;
+    while (!(await readFile(log, "utf8").catch(() => "")).includes("renewed") && Date.now() < deadline) await sleep(50);
+    assert.deepEqual((await readFile(log, "utf8")).trim().split("\n"), [
+      `auth print-bearer-token --provider anthropic --min-expiry 120s in ${root}`,
+      "renewed",
+    ]);
+    assert.equal(JSON.parse(await readFile(file, "utf8")).anthropic.access, "access-2");
+
+    // A Pi that never ends is stopped at the cap, and only then.
+    const hung = path.join(root, "hung");
+    await writeFile(
+      hung,
+      `#!/bin/sh\nexec "${process.execPath}" -e 'process.on("SIGTERM", () => process.exit(0)); setInterval(() => {}, 1000)'\n`,
+      { mode: 0o755 },
+    );
+    const before = Date.now();
+    await renewPiSignIn(hung, {
+      env: { PATH: process.env.PATH ?? "" },
+      cwd: root,
+      renewal: { provider: "anthropic", expires: 0, minExpirySeconds: 120 },
+      waitMs: 5_000,
+      capMs: 300,
+    });
+    const took = Date.now() - before;
+    // A timer may fire a few milliseconds early by the clock.
+    assert.ok(took >= 250 && took < 4_000, `stopped at the cap, and the wait ended with it: ${took} ms`);
   });
 });
 
