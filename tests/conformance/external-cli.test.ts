@@ -116,7 +116,9 @@ test("invalid manual override never falls back; bundled and project dependencies
   });
   assert.equal(excluded.status.state, "missing");
 });
-test("a Bun global install is kept: its real path is install/global/node_modules, not a Studio dependency", async () => {
+test("a Bun global install is kept: its real path is install/global/node_modules, not a Studio dependency", {
+  skip: WINDOWS && "the fixture is a symlink to a shell launcher, the shape of a Bun install on macOS and Linux",
+}, async () => {
   const home = path.join(root, "bun-home");
   const real = path.join(home, ".bun/install/global/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js");
   await launcher(real, `#!/bin/sh\ncase "$1" in\n --version) echo 'pi 0.1';;\n *) echo '${PI_FLAGS}';;\nesac\n`, "");
