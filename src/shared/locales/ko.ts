@@ -1384,7 +1384,7 @@ export default {
   "Fit every asset": "모든 에셋 보기",
   "Fit everything": "전체 보기",
   "Tidy up": "정리",
-  "Genex is drawing {title}": "Genex가 {title} 그리는 중",
+  "Genex is drawing": "Genex가 그리는 중",
   "{title} · next": "{title} · 다음",
   "{count, plural, one {# new pick} other {# new picks}}": "{count, plural, other {새 선택 #개}}",
   "Use this": "이걸로",

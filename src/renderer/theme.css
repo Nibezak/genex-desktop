@@ -410,7 +410,8 @@
   .loader-grid > span,
   [style*="infinite"]
 ),
-:root[data-motion="rest"] .graph-shimmer::after {
+:root[data-motion="rest"] :is(.graph-shimmer, .design-redrawing)::after,
+:root[data-motion="rest"] .asset-skeleton {
   animation-play-state: paused !important;
 }
 @keyframes graph-shimmer {

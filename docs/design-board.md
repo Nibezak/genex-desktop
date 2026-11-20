@@ -16,8 +16,8 @@ the person agrees to.
   same way. The canvas stays fitted until the person moves it; a moved canvas comes back as they
   left it.
 - **Moving artboards.** A drag of an artboard's caption, or of a picture itself, moves it anywhere
-  on the canvas, and it stays there. The artboards the person has not moved keep their rows, as if
-  the moved one were not on the board. **Tidy up**, beside the zoom once anything was moved, puts
+  on the canvas, and it stays there. The artboards the person has not moved keep their order and
+  flow around a moved one, so none lands on it or its caption. **Tidy up**, beside the zoom once anything was moved, puts
   every artboard back in its row.
 - **Artboards.** A **picture** hangs large (one height for all, its own shape). A **3D model** is a
   tile marked 3D that shows the model itself, to turn by hand: the board's first four load by
@@ -32,9 +32,12 @@ the person agrees to.
   the browser. A page written when pages had buttons (`data-say`) no longer shows them.
 - **Live.** A new or changed file shows within two seconds, and for a few seconds carries Genex's
   mark (an accent ring and a cursor named Genex). A changed page loads behind its sheet and takes
-  its place once loaded, so it never blinks through an empty sheet; nothing else reloads.
+  its place once loaded, so it never blinks through an empty sheet; nothing else reloads. A
+  changed picture keeps its old pixels until its file has stood still for 1.5 seconds and the new
+  one has loaded, so a half-written file never shows; one that cannot load is an empty tile.
 - **Dropping pictures.** A picture dragged onto the canvas hangs where it was let go, its middle
-  under the pointer, and is the person's to move like any artboard; it carries no mark of Genex's.
+  under the pointer (several at once stand side by side on one line), and is the person's to move
+  like any artboard; it carries no mark of Genex's.
   There is no section for these: one that has no place (dropped on an empty board, or after Tidy
   up) hangs in a last row with no name. The agent is told to look at them before it designs.
 - **Tools.** Bottom centre: **Move** (the tool in hand unless another is taken), **Note**, and
@@ -53,9 +56,11 @@ the person agrees to.
   with a ring at that spot and the agent's few words beside it, under its cursor. It stays until
   the person next presses the canvas, or the agent shows something else.
 - **Being drawn.** Artboards the agent said it is about to make (`show_design`'s `making`) hang
-  before their files exist, each at the end of its section: the one being drawn shimmers under
-  **Genex is drawing …**, the ones after it wait as empty frames named **… · next**. Each becomes
-  the artboard when its file arrives; a list the agent never made good on goes after 15 minutes.
+  before their files exist, each at the end of its section: the one being drawn shimmers under a
+  **Genex is drawing** tag in its corner, the ones after it wait as empty frames named **… · next**.
+  An artboard the board already holds that the agent makes again keeps its picture under the same
+  veil and tag until its file is written anew. Each becomes the artboard when its file arrives; a
+  list goes once no chat of the game has worked for 10 seconds, or after 15 minutes.
   The Design tab opens when the agent says what it is making, so the person watches it appear.
 - **Tell Genex.** Bottom right, while there are new notes or picks: how many, and **Tell Genex**,
   which sends them now, as the person's own message in the game's chat, rather than with their

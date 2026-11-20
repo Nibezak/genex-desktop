@@ -8,7 +8,14 @@ import path from "node:path";
 import { describe, it } from "node:test";
 import { callProjectTool } from "../../src/main/core/project-tools.ts";
 import { askForPage, makingOn, noteMaking, takeAskedPage } from "../../src/renderer/panels/design/design-asks.ts";
-import { MAKING_FRESH_MS, makingNow, withGhosts } from "../../src/renderer/panels/design/design-model.ts";
+import {
+  MAKING_FRESH_MS,
+  MAKING_IDLE_MS,
+  makingNow,
+  Redraw,
+  redrawOf,
+  withGhosts,
+} from "../../src/renderer/panels/design/design-model.ts";
 import { MAKING_MAX, readDesignMaking, readDesignSpot } from "../../src/shared/design-board.ts";
 import { ProjectTool } from "../../src/shared/project-tools.ts";
 import { UiEvent, type UiEvent as UiEventRecord } from "../../src/shared/ui-events.ts";
@@ -208,9 +215,33 @@ describe("artboards being made, on the canvas", () => {
   it("shows what is still to come: not what the board already holds, and not a list gone stale", () => {
     const declared = { files: [fires, wyrm], at: 1000 };
     assert.deepEqual(makingNow(declared, [], 2000), [fires, wyrm]);
-    assert.deepEqual(makingNow(declared, [fires], 2000), [wyrm], "a file that arrived is an artboard now");
+    assert.deepEqual(
+      makingNow(declared, [{ file: fires, modifiedAt: 1500 }], 2000),
+      [wyrm],
+      "a file that arrived is an artboard now",
+    );
     assert.deepEqual(makingNow(declared, [], 1000 + MAKING_FRESH_MS + 1), [], "an agent that never made them");
     assert.deepEqual(makingNow(null, [], 2000), []);
+  });
+
+  it("shows an artboard the board holds as being made again until its file is written anew", () => {
+    const declared = { files: [fires, wyrm], at: 1000 };
+    const old = [{ file: fires, modifiedAt: 400 }];
+    assert.deepEqual(makingNow(declared, old, 2000), [fires, wyrm], "the old picture is being drawn again");
+    assert.deepEqual(makingNow(declared, [{ file: fires, modifiedAt: 1800 }], 2000), [wyrm], "written since");
+  });
+
+  it("lets what a stopped or finished turn said go once no chat of the game works, after a moment", () => {
+    const declared = { files: [fires], at: 1000 };
+    assert.deepEqual(makingNow(declared, [], 1000 + MAKING_IDLE_MS - 1, false), [fires], "the turn may not show yet");
+    assert.deepEqual(makingNow(declared, [], 1000 + MAKING_IDLE_MS + 1, false), [], "the turn ended");
+    assert.deepEqual(makingNow(declared, [], 1000 + MAKING_IDLE_MS + 1, true), [fires], "still working");
+  });
+
+  it("draws the first of what is still to come and keeps the rest waiting", () => {
+    assert.equal(redrawOf([fires, wyrm], fires), Redraw.Drawing);
+    assert.equal(redrawOf([fires, wyrm], wyrm), Redraw.Next);
+    assert.equal(redrawOf([wyrm], fires), null);
   });
 
   it("hangs each one at the end of its own section, and a new section at the end of the board", () => {

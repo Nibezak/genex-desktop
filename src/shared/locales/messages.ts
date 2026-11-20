@@ -1441,7 +1441,7 @@ export const MESSAGES = [
   "Genex is connected",
   "Genex is connected to OpenRouter",
   "Genex is doing this. You'll only be asked to sign in.",
-  "Genex is drawing {title}",
+  "Genex is drawing",
   "Genex is installing Godot. Nothing is needed from you.",
   "Genex is open source under the MIT License. It also includes software from other projects, each under its own license.",
   "Genex is still publishing this game. Change the link once it's done.",

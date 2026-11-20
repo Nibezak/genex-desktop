@@ -1468,7 +1468,7 @@ export default {
   "Fit every asset": "Ajustar todos los recursos",
   "Fit everything": "Ajustar todo",
   "Tidy up": "Ordenar",
-  "Genex is drawing {title}": "Genex está dibujando {title}",
+  "Genex is drawing": "Genex está dibujando",
   "{title} · next": "{title} · después",
   "{count, plural, one {# new pick} other {# new picks}}":
     "{count, plural, one {# elección nueva} other {# elecciones nuevas}}",
