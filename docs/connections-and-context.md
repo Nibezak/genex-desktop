@@ -979,7 +979,10 @@ Genex 1.5.0 reaches existing installations through the standard Update flow, whi
 bundled plugin's newer version without a trust dialog. Builder briefs index Genex's guide and its
 platform cards (multiplayer, player identity, LLM in games, monetization, publishing, cover, updates);
 agents read a card with `genex__skill` before that work, and the host serves it from the plugin,
-never from or into the game folder.
+never from or into the game folder. The two LLM cards' index lines name what people ask for (AI
+opponents, teammates or agents, characters that talk, plan or remember, factions that negotiate, a
+game master or narrator, a judge of free-form input, quests or items made per save), so a request
+worded any of those ways finds them.
 
 With an unlocked account, agents also reach Studio's pinned Genex CLI: `genex__cli` for free
 commands (doctor, budget, LLM models, job status and cancel, shop list, a store item's draft) and, after a consent card,
@@ -987,6 +990,11 @@ commands (doctor, budget, LLM models, job status and cancel, shop list, a store 
 in a throwaway folder of its own, never the game, with only the Genex API reachable (and Genex's
 object storage while a store item's picture, model or package moves); setup,
 sign-in, publishing and generation commands are refused and point to the matching Genex tool.
+A benchmark of an in-game model call (`llm bench`) spends the person's own credits, never Nex, up
+to the `max-credits` its card shows for one attempt, and may name the game's answer-shape file
+(`schema`: one `.json` file inside the game, at most 16 KB), which Studio checks by real path and
+copies in. `llm price` is refused: it rereads a file from the CLI's folder, which Studio removes
+after every command, so the benchmark's answer is the record.
 `genex__package` adds `@genex-ai/multiplayer` or `@genex-ai/embed-sdk` at Studio's pin to a
 build game after consent, opening the npm registry for that one install. A Studio-template game
 gets player identity by mapping Studio's copy in its import map instead, and Studio then calls

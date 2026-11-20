@@ -9,28 +9,58 @@ disagrees with this preface, this preface wins.
 - `npx genex llm models`, `llm status` and `llm cancel <id>`: `genex__cli`, for example
   `genex__cli {"command":"llm models","options":{"all":true}}` or
   `genex__cli {"command":"llm cancel","args":"<id>"}`.
-- `npx genex llm bench "<prompt>" --samples 3 --max-coins <n>`: `genex__cli-paid`, with the
-  prompt in `args` and whole-number flags in `options`:
-  `{"command":"llm bench","args":"<prompt>","options":{"samples":3,"max-coins":5}}`. The user
-  approves each bench because it spends their Nex (the flag keeps its old name); Studio adds the approval flag itself, so never
-  pass `user-approved`.
-- The CLI runs in a folder of Studio's own, not the game, so a flag that names a game file (such as
-  `--schema ./answer.schema.json`) cannot be read. `llm price` is not available.
+- `npx genex llm bench "<prompt>" --schema ./answer.schema.json --samples 3 --max-credits <n>`:
+  `genex__cli-paid`, with the prompt in `args` and the flags in `options`:
+  `{"command":"llm bench","args":"<prompt>","options":{"schema":"answer.schema.json","samples":3,"max-credits":5}}`.
+  The user approves each bench because it spends their own Genex credits (1 credit is 1 cent),
+  never Nex: `max-credits` is the most one attempt may spend, and the card shows it. Studio adds
+  the approval flag itself, so never pass `user-approved`. `max-coins`, the flag's old name, is read
+  as `max-credits`.
+- `schema` names the game's answer-shape file: one `.json` file inside this game, by its path
+  relative to the game's folder, of at most 16 KB. The CLI runs in a folder of Studio's own, not
+  the game, so Studio checks the file and hands the CLI a copy. No other flag reads a game file.
+- The bench's answer is JSON. `recommendedMaxCredits` is the card's `Declare maxCredits`,
+  `recommendedPerCallMaxCredits` its `Grant perCallMaxCredits`, `averageCreditsPerCall` its
+  `Per-call estimate` and `recommendedPerCallEstimateCredits` its `Grant perCallEstimateCredits`.
+- `llm price` is not available: it reprints a file the CLI leaves in the folder it ran in, and
+  Studio removes that folder after every command. Write the bench's numbers into the game when you
+  read them, and bench again only when the prompt, the schema or the model changed.
 - Project commands (`llm bench`, `llm status`, `llm cancel`) need the game's hosted project:
   publish a draft with `genex__publish {"operation":"draft"}` first. `init --convert` does not
   apply in Studio.
+
+## Not in Studio yet
+
+The card below is from Genex CLI 1.44.0, ahead of the CLI Studio runs. These parts of that release
+are left out of it because Studio cannot run them yet:
+
+- `llm bench` takes no `system` or `messages` option here. Put the system text and a typical
+  history into the bench prompt itself, so the measured size is the real call's.
+- Practice mode (`llm practice`), creator-paid budgets (`llm sponsor`, `sponsored: true`) and
+  `llm usage` are commands of that CLI. `features.sponsor` may read true on a stand; a game made
+  here still asks the player for the budget.
+- Model calls from a multiplayer server room (`shareWithRooms`, `lendSpendGrantToRoom`,
+  `ctx.models`) need a newer multiplayer SDK than Studio ships. `features.roomCalls` may read true
+  on a stand; a game made here calls the model from the player's page.
+- Unity, Godot, Rust and Unreal games have no model-call binding in Studio.
+
+`system`, `messages`, the controls and `features` work: Studio ships the SDK that has them.
 
 ## Reading the reference
 
 Read the pricing reference with
 `genex__skill {"name":"genex-llm-in-games","file":"skills/genex-llm-in-games/references/pricing.md"}`.
 
+Genex's optional advice on designing the feature (the system instruction and turns, state as
+data, legal moves, memory, several characters in one call, rules a character writes, hostile
+player text) is `play-time-models` in the `genex-recommendations` plugin.
+
 Other commands map onto Studio tools as the `genex` skill describes (`genex__skill {"name":"genex"}`).
 
-<!-- upstream @genex-ai/cli-demo/templates/skills/genex-llm-in-games/SKILL.md v1.43.6 sha256 5049cd58a6cd1ceb43ceef71fd583fe7efa31a2030c0d2a3f41473ed8aed30d8 -->
+<!-- upstream genex-demo@6c79d69ed/apps/cli/templates/skills/genex-llm-in-games/SKILL.md v1.44.0 sha256 38fddf6a4244f70d0b879ca532c5da9b7b5a1dbc6d655224e65bd118b212ebb7 -->
 ---
 name: genex-llm-in-games
-description: Call a language model from inside a running game — an NPC that answers in its own words, a quest written for this save, a judge that reads what the player typed. The PLAYER pays and approves, on a Genex surface the game cannot forge. Covers the two modes (a popup per call, or one standing budget then many silent calls), benchmarking the per-call ceiling before declaring it, the receiver pattern, and honest handling of every refusal.
+description: Call a language model from a running game — NPCs that answer in their own words, AI opponents, teammates and agents that plan and act, faction leaders, a narrator or game master, a judge of what the player typed, quests written per save. The PLAYER pays and approves on a Genex surface. Covers one-time calls and standing budgets, benchmarking the ceiling, streaming, the judge and every refusal.
 ---
 
 # Genex LLM in Games
@@ -73,6 +103,7 @@ reply in a speech bubble: under a grant, `generateStream()` is the same call as
 of all at once after it. Keep `generate()` for answers the game only uses whole
 (a quest object, a list of decisions) — nobody watches those being written.
 
+
 ## Step 0 — is the lane live on this stand?
 
 ```bash
@@ -105,11 +136,24 @@ identity must be resolved first — `$genex-threejs-embed-auth`.
   rest only if the player asks. Each row carries `label`, `vendor`,
   `contextLength`, `personalPlan` and `structuredOutputs`; render `label`
   verbatim, so the name on screen is the model that gets billed.
+- `getGenerationModels()` also says what this stand can do beyond the base
+  call, as `features`: `messages`, `sponsor`, `sponsorGuests`, `roomCalls`,
+  `moderation` (`'off' | 'log' | 'enforce'`), and `paused` beside it. Decide
+  from these, never from a version number.
 - `generate({ modelId, prompt, outputFormat, schema?, maxCredits,
-  allowExternal?, idempotencyKey?, grantId?, timeoutMs? })` →
+  allowExternal?, idempotencyKey?, grantId?, timeoutMs?, system?, messages?,
+  temperature?, topP?, stop?, seed?, reasoningEffort?, cacheSystem? })` →
   `{ status, generationId, output, source, error }` plus billing fields
   (`billingStatus`, `maxCredits`, `reservedCredits`, `chargedCredits`, their
   display-USD twins). `maxCredits` is the call's CEILING, never a price.
+  `system` is the game's own instruction; `messages` is earlier turns
+  (`{ role: 'user' | 'assistant', content }`, plain text, starting with `user`
+  and alternating), with `prompt` as the newest user turn. Where the stand
+  does not take them (`features.messages` false) the SDK folds them into one
+  prompt in the same order and drops the controls, so write the game this way
+  everywhere. Each model row lists the `controls` it takes; a control it does
+  not take is `unsupported_parameter`, refused before any charge. All of it is
+  input the player pays for on every call.
 - `requestSpendGrant({ models, perCallMaxCredits, perCallEstimateCredits?,
   disclosure: { periodLabel, estimatedCallsPerPeriod, estimatedCreditsPerPeriod },
   maxConcurrent?, maxCallsPerMinute?, allowExternal?, judge?: { enabled,
@@ -117,7 +161,8 @@ identity must be resolved first — `$genex-threejs-embed-auth`.
   `{ status, grantId, … the limits the player approved }`; status is `active` |
   `canceled` | `expired` | `failed` | `pending`. `perCallEstimateCredits` is the
   honest per-call figure the disclosure is built on; left out, it is the
-  ceiling.
+  ceiling. `periodLabel` is exactly `'minute'`, `'hour'` or `'session'`
+  (anything else is `invalid_disclosure`).
 - `judge({ grantId, state, questions, idempotencyKey?, timeoutMs? })` →
   `{ status, generationId, answers, error, billing }` — the grant's classifier,
   answered in the same response. `questions` is 1–64 named `choice`
@@ -421,6 +466,7 @@ These are source contracts, not a claim that every stand runs this lane —
 - [ ] Output is schema-validated and grants nothing by itself
 - [ ] `unknown` reads as "still settling", never as a failure
 - [ ] The game renders no price sheet and no funding picker
+- [ ] `content_blocked` and a queued call are handled
 
 ## Troubleshooting
 
@@ -469,6 +515,32 @@ budget with `judge` and let it be credit-funded; keep the authored branch.
 the period (your own `estimatedCallsPerPeriod` at the largest size): wait, and
 if it keeps happening your declared rate is too low — fix the loop or the
 estimate, never retry in a tight loop.
+
+**`content_blocked`** — this stand checks what a game sends to a model and what
+comes back (`features.moderation` is `'enforce'`). The result says which side:
+`contentBlocked: 'input'` (the text sent was refused before the model ran;
+nothing was charged) or `'output'` (the answer was withheld; the attempt is
+charged like any failed one). Show `generationErrorMessage(res.error)` or an
+in-fiction line, let the player change what they typed, and never resend the
+same text automatically. Violence and dark themes in a game's fiction are not
+what this blocks: do not water prompts down in advance.
+
+**`unsupported_parameter`** — a control (`temperature`, `seed`,
+`reasoningEffort`, ...) the chosen model does not take; the answer names it.
+Nothing was charged. Read the model's `controls` from `getGenerationModels()`
+and send only those. **`invalid_messages`** — `messages` breaks the turn rule
+(start with `user`, alternate, plain text).
+
+**A call stays `queued`, or the judge answers `judge_busy`** — the stand or
+this game's share of it is busy. Wait for the result; retry a judge check on
+the next natural beat, never in a loop. Prefer `generateStream()` where the
+player is watching: the first words arrive sooner than a whole answer.
+
+
+**An old call reads back empty** — a stand may remove the stored prompt and
+answer of settled calls after a retention period (`textRemovedAt` on the
+view). Save what the game needs when the call resolves; never treat Genex as
+the game's memory.
 
 **`stream_requires_grant`** — `generateStream()` was called without a
 `grantId`. Streaming is grant-only: a one-time call waits on the player's
