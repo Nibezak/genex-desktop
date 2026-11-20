@@ -434,6 +434,14 @@
     {
       "from": "- The shape that does work is **JSON parameters, then render**: the model",
       "to": "  impossible version."
+    },
+    {
+      "replace": " It answers in this folder as it is, before anything is\n   converted, so it comes first: if it says the lane is off, in-game calls\n   answer 404 here.",
+      "with": " If it says the lane is off, in-game calls\n   answer 404 here."
+    },
+    {
+      "replace": "2. `npx genex init --convert` — it connects this folder to a hosted Genex game\n   in place. The code, the files and this toolkit stay exactly as they are, and\n   generations still land in `./assets`. It is the user's yes that runs it, so\n   ask before you do if you have not already.\n3. Load `$genex-llm-in-games` — it arrives with the conversion and owns the\n   build:",
+      "with": "2. Load `$genex-llm-in-games` — it owns the\n   build:"
     }
   ],
   "genex-llm-in-games/SKILL.md": [
@@ -512,14 +520,61 @@
     {
       "replace": " Batch and cache; do not raise the limits to hide it.",
       "with": ""
+    },
+    {
+      "from": "**Design the feature before you price it.** What goes in the call, what comes",
+      "to": "| an engine game (Unity, Godot, Rust, Unreal) | \"Other engines\" below |"
+    },
+    {
+      "replace": ": trim history, and benchmark the\n  real call with `--system <file>` and `--messages <file>`.",
+      "with": "."
+    },
+    {
+      "replace": " Two more options change who pays\n  or who may spend: `sponsored: true` asks for a budget paid by the game's\n  creator, with no sheet ([references/sponsor.md](references/sponsor.md)), and\n  `shareWithRooms: true` lets the player lend the budget to a multiplayer\n  server room with `lendSpendGrantToRoom(grantId, session.code)`\n  ([references/multiplayer.md](references/multiplayer.md)).",
+      "with": ""
+    },
+    {
+      "section": "## Other engines"
+    },
+    {
+      "from": "- [ ] The stable instruction is `system`, the turn carries only what changed, and every field the game acts on is an enum or a bounded number ([design](references/design.md))",
+      "to": "- [ ] A character is sent only what it could know; player text travels as data and grants nothing"
+    },
+    {
+      "replace": "- [ ] `content_blocked`, a queued call and `unavailable` each have a playable path",
+      "with": "- [ ] `content_blocked` and a queued call are handled"
+    },
+    {
+      "from": "- [ ] The feature was watched in practice mode, refusals included ([practice](references/practice.md)), then on the owner's test build",
+      "to": "- [ ] A creator-paid allowance was set only after the person agreed to its numbers"
+    },
+    {
+      "from": "**`{ status: 'unavailable' }` from `requestSpendGrant({ sponsored: true })`** —",
+      "to": "[references/sponsor.md](references/sponsor.md) says."
+    },
+    {
+      "replace": " (or the creator sponsors it)",
+      "with": ""
+    },
+    {
+      "replace": ", prompt and memory design, multiplayer rooms, local practice and every refusal.",
+      "with": " and every refusal."
     }
   ],
   "genex-llm-in-games/references/pricing.md": [
     {
       "replace": "Write the benchmark date and the model id beside them in `DESIGN.md`, so the\nnext person knows what the numbers describe. Do not add",
       "with": "Do not add"
+    },
+    {
+      "from": "- `npx genex llm price` re-prints the last run's recommendation without spending",
+      "to": "  request to re-run."
     }
   ],
+  "genex-llm-in-games/references/design.md": "drop",
+  "genex-llm-in-games/references/multiplayer.md": "drop",
+  "genex-llm-in-games/references/practice.md": "drop",
+  "genex-llm-in-games/references/sponsor.md": "drop",
   "genex-monetization/SKILL.md": [
     {
       "replace": "Load this when the user asks to sell something or add payments. Build the game\nloop before adding commerce.",

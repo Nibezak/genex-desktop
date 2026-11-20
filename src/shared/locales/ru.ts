@@ -1876,6 +1876,9 @@ export default {
   "Install Ollama": "Установить Ollama",
   "Install OpenCode": "Установить OpenCode",
   "Install OpenCode from Settings › Model Providers.": "Установи OpenCode в разделе «Настройки › Провайдеры моделей».",
+  "Install Pi from Settings › Model Providers.": "Установи Pi в разделе «Настройки › Провайдеры моделей».",
+  "This version of Pi is too old for Genex. Update Pi, then check again.":
+    "Эта версия Pi слишком старая для Genex. Обнови Pi и нажми «Проверить снова».",
   "Install Unity 6": "Установить Unity 6",
   "Install Unreal {version}": "Установить Unreal {version}",
   "Install Xcode": "Установить Xcode",
@@ -2556,6 +2559,7 @@ export default {
   "Open App Store": "Открыть App Store",
   "Open Apple's downloads": "Открыть загрузки Apple",
   "Open Model providers to reconnect, then try again.": "Открой «Провайдеры моделей», переподключись и попробуй снова.",
+  "Open Pi and type /login to connect a provider.": "Открой Pi и введи /login, чтобы подключить провайдера.",
   "Open Plugins": "Открыть плагины",
   "Open Privacy settings": "Открыть настройки конфиденциальности",
   "Open Studio": "Открыть Studio",
@@ -2639,6 +2643,13 @@ export default {
   "OpenCode keeps each sign-in": "OpenCode запоминает каждый вход",
   "OpenCode ready": "OpenCode готов",
   "OpenCode ready · free models": "OpenCode готов · бесплатные модели",
+  "Pi didn't answer. Check the installation, then try again.": "Pi не отвечает. Проверь установку и попробуй снова.",
+  "Pi has no model it can run yet.": "У Pi пока нет моделей, которые он может запустить.",
+  "Pi isn't installed on this computer.": "Pi не установлен на этом компьютере.",
+  "Pi keeps each sign-in": "Pi запоминает каждый вход",
+  "Pi sign-in": "Вход в Pi",
+  "Pi {version}, {count, plural, other {# model(s)}}":
+    "Pi {version}, {count, plural, one {# модель} few {# модели} many {# моделей} other {# модели}}",
   "OpenCode sign-in": "Вход в OpenCode",
   "OpenCode {version}, {count, plural, other {# model(s)}}":
     "OpenCode {version}, {count, plural, one {# модель} few {# модели} many {# моделей} other {# модели}}",
@@ -3412,6 +3423,8 @@ export default {
     "Войди в аккаунт провайдера в OpenCode, чтобы запускать его модели.",
   "Sign in to a provider with OpenCode from Settings › Model Providers.":
     "Войди в провайдера через OpenCode в разделе «Настройки › Провайдеры моделей».",
+  "Sign in to a provider with Pi from Settings › Model Providers.":
+    "Войди в провайдера через Pi в разделе «Настройки › Провайдеры моделей».",
   "Sign in to another provider": "Войти в аккаунт другого провайдера",
   "Sign in to another provider…": "Войти через другого провайдера…",
   "Sign in to buy things in games": "Войди, чтобы покупать в играх",
@@ -3535,12 +3548,19 @@ export default {
   "Stop your builds and replies first, then move.": "Сначала останови сборки и ответы, потом переноси.",
   Stopped: "Остановлено",
   "Stopped adding the Luau checks. Nothing was kept.": "Добавление проверок Luau остановлено. Ничего не сохранено.",
+  "Stopped before it started — nothing was done. Send a message to go on.":
+    "Остановлено до начала — ничего не сделано. Напиши сообщение, чтобы продолжить.",
+  "Stopped before the build started — nothing was built.": "Остановлено до начала сборки — ничего не собрано.",
   "Stopped getting Roblox Studio.": "Установка Roblox Studio остановлена.",
   "Stopped getting Roblox Studio. Anything Roblox's installer already put on this computer stays.":
     "Установка Roblox Studio остановлена. Всё, что установщик Roblox уже поставил на этот компьютер, останется.",
   "Stopped play": "Игра остановлена",
+  "Stopped waiting. Send a message to go on once it's ready.":
+    "Ожидание остановлено. Напиши сообщение, когда всё будет готово, чтобы продолжить.",
   "Stopped.": "Остановлено.",
   "Stopped. Everything built so far is kept.": "Остановлено. Всё, что успели собрать, сохранено.",
+  "Stopped. Finished edits are preserved; send a message to continue.":
+    "Остановлено. Готовые правки сохранены — напиши сообщение, чтобы продолжить.",
   "Stopped. What it built is in your game now.": "Остановлено. Всё собранное уже в игре.",
   "Stopped. What it built is kept in your project.": "Остановлено. Всё собранное сохранено в твоём проекте.",
   "Stopped. Your game is as you left it.": "Остановлено. Игра осталась как была.",
@@ -4217,6 +4237,8 @@ export default {
     "Открыты два редактора Unreal. Закрой нужный в его собственном окне.",
   "Two open Studios have a place named {name}, so Genex can't tell them apart. Save one under another name in Studio, then choose it again.":
     "В двух открытых Studio есть плейс с именем {name}, и Genex не может их различить. Сохрани один из них в Studio под другим именем и выбери снова.",
+  "Type /login below and finish signing in. Pi keeps the sign-in.":
+    "Введи /login ниже и заверши вход. Pi запомнит вход.",
   "Type a name.": "Введи название.",
   "Type your email and password in the Unity Hub window and add a Unity license (Personal is free if Unity's terms allow it for you). Genex goes on by itself once you're in.":
     "Введи почту и пароль в окне Unity Hub и добавь лицензию Unity (Personal — бесплатно, если условия Unity тебе это позволяют). Как только войдёшь, Genex продолжит сам.",
@@ -4321,6 +4343,7 @@ export default {
   "Update Claude Code": "Обновить Claude Code",
   "Update Codex": "Обновить Codex",
   "Update OpenCode": "Обновить OpenCode",
+  "Update Pi": "Обновить Pi",
   "Update Xcode": "Обновить Xcode",
   "Update Xcode (this Mac has {version})": "Обновить Xcode (на этом Mac — {version})",
   "Update all": "Обновить все",

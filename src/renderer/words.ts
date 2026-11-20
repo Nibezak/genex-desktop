@@ -38,6 +38,7 @@ import { EngineFailureKind } from "../shared/engine-requests.ts";
 import { LocalServerProblem } from "../shared/local-server.ts";
 import { computerSettingQuestion, type GithubLookupProblem } from "../shared/plugins.ts";
 import { computerControlOffered } from "../shared/computer-control.ts";
+import { GenexLine } from "../shared/event-log.ts";
 import { CloudBuildFailure, type GenexPublishPhase, MacNotarizeFailure } from "../shared/genex.ts";
 import { PlayCategory, PlayNote, PlayRemixRefusal, PlayShelf, RemixStep } from "../shared/play.ts";
 import {
@@ -2166,6 +2167,17 @@ export const PROJECT_KIND_WORDS = {
 
 // ── the chat transcript ───────────────────────────────────────────────────────────────────
 
+/**
+ * Genex's own fixed chat lines, shown by their code (`genex_line`) in the app's language: read
+ * when a transcript is drawn, so a language switch reaches lines already in the chat.
+ */
+export const GENEX_LINE_WORDS = {
+  [GenexLine.Stopped]: () => t("Stopped. Finished edits are preserved; send a message to continue."),
+  [GenexLine.StoppedWaiting]: () => t("Stopped waiting. Send a message to go on once it's ready."),
+  [GenexLine.StoppedBeforeTurn]: () => t("Stopped before it started — nothing was done. Send a message to go on."),
+  [GenexLine.StoppedBeforeBuild]: () => t("Stopped before the build started — nothing was built."),
+} as const satisfies Record<GenexLine, () => string>;
+
 /** The fixed lines, labels and prefills `chat-entries.ts` writes into the transcript. */
 export const TRANSCRIPT_WORDS = {
   /** A game's engine link (`engine_linked`): one line with Undo, then what Undo did. */
@@ -2821,6 +2833,22 @@ export const METERED_PROVIDER_WORDS = {
     update: t("Update OpenCode"),
     connectedLine: t("Billed by each provider you use"),
     unreachable: t("OpenCode didn't answer. Check the installation, then try again."),
+  },
+  pi: {
+    name: "Pi",
+    guide: "https://www.npmjs.com/package/@earendil-works/pi-coding-agent",
+    signIn: t("Sign in"),
+    signInLine: t("Open Pi and type /login to connect a provider."),
+    signingIn: t("Type /login below and finish signing in. Pi keeps the sign-in."),
+    cancelSignIn: t("Cancel"),
+    openSignInPage: t("Open sign-in page"),
+    addProvider: t("Sign in to another provider…"),
+    addProviderLine: t("Pi keeps each sign-in"),
+    update: t("Update Pi"),
+    connectedLine: t("Billed by each provider you use"),
+    unreachable: t("Pi didn't answer. Check the installation, then try again."),
+    outdatedLine: t("This version of Pi is too old for Genex. Update Pi, then check again."),
+    updatingLine: t("Updating {name}. This can take a minute.", { name: "Pi" }),
   },
   openRouter: {
     name: "OpenRouter",

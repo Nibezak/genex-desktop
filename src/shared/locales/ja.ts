@@ -1868,6 +1868,9 @@ export default {
   "Install OpenCode": "OpenCodeをインストール",
   "Install OpenCode from Settings › Model Providers.":
     "設定 › モデルプロバイダーからOpenCodeをインストールしてください。",
+  "Install Pi from Settings › Model Providers.": "設定 › モデルプロバイダーからPiをインストールしてください。",
+  "This version of Pi is too old for Genex. Update Pi, then check again.":
+    "このバージョンのPiはGenexには古すぎます。Piをアップデートしてから、もう一度確認してね。",
   "Install Unity 6": "Unity 6をインストール",
   "Install Unreal {version}": "Unreal {version}をインストール",
   "Install Xcode": "Xcodeをインストール",
@@ -2566,6 +2569,7 @@ export default {
   "Open Apple's downloads": "Appleのダウンロードを開く",
   "Open Model providers to reconnect, then try again.":
     "「モデルプロバイダー」を開いて再接続し、もう一度試してください。",
+  "Open Pi and type /login to connect a provider.": "Piを開いて/loginと入力し、プロバイダーを接続してください。",
   "Open Plugins": "プラグインを開く",
   "Open Privacy settings": "プライバシー設定を開く",
   "Open Studio": "Studioを開く",
@@ -2651,6 +2655,13 @@ export default {
   "OpenCode keeps each sign-in": "サインイン情報はそれぞれOpenCodeが保持します",
   "OpenCode ready": "OpenCodeの準備ができました",
   "OpenCode ready · free models": "OpenCode準備完了 · 無料モデル",
+  "Pi didn't answer. Check the installation, then try again.":
+    "Piから応答がありません。インストールを確認して、もう一度試してください。",
+  "Pi has no model it can run yet.": "Piで実行できるモデルがまだありません。",
+  "Pi isn't installed on this computer.": "このコンピューターにPiがインストールされていません。",
+  "Pi keeps each sign-in": "サインイン情報はそれぞれPiが保持します",
+  "Pi sign-in": "Piへのサインイン",
+  "Pi {version}, {count, plural, other {# model(s)}}": "Pi {version}、モデル{count, plural, other {#個}}",
   "OpenCode sign-in": "OpenCodeへのサインイン",
   "OpenCode {version}, {count, plural, other {# model(s)}}": "OpenCode {version}、モデル{count, plural, other {#個}}",
   "OpenCode's model list could not be read.": "OpenCodeのモデル一覧を読み取れませんでした。",
@@ -3423,6 +3434,8 @@ export default {
     "プロバイダーのモデルを使うには、OpenCodeでそのプロバイダーにサインインしてください。",
   "Sign in to a provider with OpenCode from Settings › Model Providers.":
     "設定 › モデルプロバイダーから、OpenCodeでプロバイダーにサインインしてください。",
+  "Sign in to a provider with Pi from Settings › Model Providers.":
+    "設定 › モデルプロバイダーから、Piでプロバイダーにサインインしてください。",
   "Sign in to another provider": "別のプロバイダーにサインイン",
   "Sign in to another provider…": "別のプロバイダーにサインイン…",
   "Sign in to buy things in games": "サインインしてゲーム内で購入しましょう",
@@ -3553,12 +3566,19 @@ export default {
   "Stop your builds and replies first, then move.": "先にビルドと返信を止めてから移動してください。",
   Stopped: "停止",
   "Stopped adding the Luau checks. Nothing was kept.": "Luauチェックの追加を停止しました。何も保存されていません。",
+  "Stopped before it started — nothing was done. Send a message to go on.":
+    "始まる前に停止しました。何も変更されていません。続行するにはメッセージを送信してください。",
+  "Stopped before the build started — nothing was built.": "ビルドが始まる前に停止しました。何もつくられていません。",
   "Stopped getting Roblox Studio.": "Roblox Studioの入手を止めました。",
   "Stopped getting Roblox Studio. Anything Roblox's installer already put on this computer stays.":
     "Roblox Studioの入手を止めました。Robloxのインストーラーがすでにこのコンピューターに入れたものは残ります。",
   "Stopped play": "プレイを停止しました",
+  "Stopped waiting. Send a message to go on once it's ready.":
+    "待機を停止しました。準備ができたらメッセージを送信して続けてください。",
   "Stopped.": "停止しました。",
   "Stopped. Everything built so far is kept.": "停止しました。ここまでつくったものはすべて残っています。",
+  "Stopped. Finished edits are preserved; send a message to continue.":
+    "停止しました。編集内容は保存されています。続行するにはメッセージを送信してください。",
   "Stopped. What it built is in your game now.": "停止しました。つくったものはゲームに反映されています。",
   "Stopped. What it built is kept in your project.": "停止しました。つくったものはプロジェクトに残っています。",
   "Stopped. Your game is as you left it.": "停止しました。ゲームは元のままです。",
@@ -4250,6 +4270,8 @@ export default {
     "Unrealエディターが2つ開いています。終了したいほうを、そのウィンドウから終了してください。",
   "Two open Studios have a place named {name}, so Genex can't tell them apart. Save one under another name in Studio, then choose it again.":
     "開いている2つのStudioに{name}という名前のプレイスがあり、Genexには区別できません。Studioで片方を別の名前で保存してから、もう一度選んでください。",
+  "Type /login below and finish signing in. Pi keeps the sign-in.":
+    "下で/loginと入力してサインインを完了してください。サインイン情報はPiが保持します。",
   "Type a name.": "名前を入力してください。",
   "Type your email and password in the Unity Hub window and add a Unity license (Personal is free if Unity's terms allow it for you). Genex goes on by itself once you're in.":
     "Unity Hubのウィンドウでメールアドレスとパスワードを入力し、Unityのライセンスを追加してください（Unityの規約で認められていれば、Personalは無料です）。サインインできたら、Genexが自動で続けます。",
@@ -4358,6 +4380,7 @@ export default {
   "Update Claude Code": "Claude Codeをアップデート",
   "Update Codex": "Codexをアップデート",
   "Update OpenCode": "OpenCodeをアップデート",
+  "Update Pi": "Piをアップデート",
   "Update Xcode": "Xcodeをアップデート",
   "Update Xcode (this Mac has {version})": "Xcodeをアップデート（このMacは{version}）",
   "Update all": "すべてアップデート",

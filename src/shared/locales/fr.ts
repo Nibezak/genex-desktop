@@ -1930,6 +1930,9 @@ export default {
   "Install Ollama": "Installer Ollama",
   "Install OpenCode": "Installer OpenCode",
   "Install OpenCode from Settings › Model Providers.": "Installe OpenCode depuis Réglages › Fournisseurs de modèles.",
+  "Install Pi from Settings › Model Providers.": "Installe Pi depuis Réglages › Fournisseurs de modèles.",
+  "This version of Pi is too old for Genex. Update Pi, then check again.":
+    "Cette version de Pi est trop ancienne pour Genex. Mets Pi à jour, puis vérifie à nouveau.",
   "Install Unity 6": "Installer Unity 6",
   "Install Unreal {version}": "Installer Unreal {version}",
   "Install Xcode": "Installer Xcode",
@@ -2623,6 +2626,7 @@ export default {
   "Open Apple's downloads": "Ouvrir les téléchargements d’Apple",
   "Open Model providers to reconnect, then try again.":
     "Ouvre Fournisseurs de modèles pour te reconnecter, puis réessaie.",
+  "Open Pi and type /login to connect a provider.": "Ouvre Pi et tape /login pour connecter un fournisseur.",
   "Open Plugins": "Ouvrir Plugins",
   "Open Privacy settings": "Ouvrir les réglages de confidentialité",
   "Open Studio": "Ouvrir Studio",
@@ -2708,6 +2712,14 @@ export default {
   "OpenCode keeps each sign-in": "OpenCode garde chaque connexion",
   "OpenCode ready": "OpenCode prêt",
   "OpenCode ready · free models": "OpenCode prêt · modèles gratuits",
+  "Pi didn't answer. Check the installation, then try again.":
+    "Pi ne répond pas. Vérifie l’installation, puis réessaie.",
+  "Pi has no model it can run yet.": "Pi n’a encore aucun modèle qu’il peut lancer.",
+  "Pi isn't installed on this computer.": "Pi n’est pas installé sur cet ordinateur.",
+  "Pi keeps each sign-in": "Pi garde chaque connexion",
+  "Pi sign-in": "Connexion à Pi",
+  "Pi {version}, {count, plural, other {# model(s)}}":
+    "Pi {version}, {count, plural, one {# modèle} other {# modèles}}",
   "OpenCode sign-in": "Connexion à OpenCode",
   "OpenCode {version}, {count, plural, other {# model(s)}}":
     "OpenCode {version}, {count, plural, one {# modèle} other {# modèles}}",
@@ -3486,6 +3498,8 @@ export default {
     "Connecte-toi à un fournisseur dans OpenCode pour utiliser ses modèles.",
   "Sign in to a provider with OpenCode from Settings › Model Providers.":
     "Connecte-toi à un fournisseur avec OpenCode depuis Réglages › Fournisseurs de modèles.",
+  "Sign in to a provider with Pi from Settings › Model Providers.":
+    "Connecte-toi à un fournisseur avec Pi depuis Réglages › Fournisseurs de modèles.",
   "Sign in to another provider": "Se connecter à un autre fournisseur",
   "Sign in to another provider…": "Se connecter à un autre fournisseur…",
   "Sign in to buy things in games": "Connecte-toi pour acheter dans les jeux",
@@ -3614,12 +3628,19 @@ export default {
   "Stop your builds and replies first, then move.": "Arrête d’abord tes builds et réponses, puis déplace.",
   Stopped: "Arrêté",
   "Stopped adding the Luau checks. Nothing was kept.": "Ajout des vérifications Luau arrêté. Rien n’a été gardé.",
+  "Stopped before it started — nothing was done. Send a message to go on.":
+    "Arrêté avant de commencer : rien n’a été fait. Envoie un message pour continuer.",
+  "Stopped before the build started — nothing was built.": "Arrêté avant le début du build : rien n’a été créé.",
   "Stopped getting Roblox Studio.": "Installation de Roblox Studio arrêtée.",
   "Stopped getting Roblox Studio. Anything Roblox's installer already put on this computer stays.":
     "Installation de Roblox Studio arrêtée. Ce que l’installateur de Roblox a déjà mis sur cet ordinateur reste.",
   "Stopped play": "Jeu arrêté",
+  "Stopped waiting. Send a message to go on once it's ready.":
+    "Attente arrêtée. Envoie un message pour continuer quand tout est prêt.",
   "Stopped.": "Arrêté.",
   "Stopped. Everything built so far is kept.": "Arrêté. Tout ce qui a été créé jusqu’ici est gardé.",
+  "Stopped. Finished edits are preserved; send a message to continue.":
+    "Arrêté. Les modifications terminées sont gardées ; envoie un message pour continuer.",
   "Stopped. What it built is in your game now.": "Arrêté. Ce qui a été créé est maintenant dans ton jeu.",
   "Stopped. What it built is kept in your project.": "Arrêté. Ce qui a été créé est gardé dans ton projet.",
   "Stopped. Your game is as you left it.": "Arrêté. Ton jeu est tel que tu l’as laissé.",
@@ -4311,6 +4332,8 @@ export default {
     "Deux éditeurs Unreal sont ouverts. Quitte celui que tu veux depuis sa propre fenêtre.",
   "Two open Studios have a place named {name}, so Genex can't tell them apart. Save one under another name in Studio, then choose it again.":
     "Deux Studios ouverts ont un lieu nommé {name}, donc Genex ne peut pas les distinguer. Enregistre-en un sous un autre nom dans Studio, puis choisis-le à nouveau.",
+  "Type /login below and finish signing in. Pi keeps the sign-in.":
+    "Tape /login ci-dessous et termine la connexion. Pi garde la connexion.",
   "Type a name.": "Tape un nom.",
   "Type your email and password in the Unity Hub window and add a Unity license (Personal is free if Unity's terms allow it for you). Genex goes on by itself once you're in.":
     "Tape ton e-mail et ton mot de passe dans la fenêtre d’Unity Hub et ajoute une licence Unity (Personal est gratuite si les conditions d’Unity te le permettent). Genex continue tout seul dès que la connexion est faite.",
@@ -4416,6 +4439,7 @@ export default {
   "Update Claude Code": "Mettre à jour Claude Code",
   "Update Codex": "Mettre à jour Codex",
   "Update OpenCode": "Mettre à jour OpenCode",
+  "Update Pi": "Mettre à jour Pi",
   "Update Xcode": "Mettre à jour Xcode",
   "Update Xcode (this Mac has {version})": "Mettre à jour Xcode (ce Mac a {version})",
   "Update all": "Tout mettre à jour",

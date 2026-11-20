@@ -13,7 +13,9 @@
  * object storage beside it only for a call that moves a store item's files. A store
  * item's picture, model and package are files of the bound game: Studio checks each by real path
  * inside it and copies it into the run folder first; `items add` writes `genex-items/<id>/` in the
- * run folder, and Studio moves it into the game afterwards (`genex-game-paths.ts`). The game's local
+ * run folder, and Studio moves it into the game afterwards (`genex-game-paths.ts`). A bench's
+ * answer-shape file (`--schema`) is checked and copied in the same way, a small `.json` file the CLI
+ * reads into its request: no object storage opens for it. The game's local
  * item drafts (`.genex/items/`, made before the game is on Genex) are copied in for the shop's
  * commands, and a change carried back (`local-item-files.ts`); a `shop add|set|remove` in a game with
  * no hosted project runs on them alone. Studio itself uploads them after a publish
@@ -231,9 +233,14 @@ export function standCredentialFile(stand: GenexStand): () => Promise<string | u
   };
 }
 
-/** Whether a call moves a store item's files: it uploads a picture, model or package, adds a shared item, or syncs. */
-const movesItemFiles = (request: GenexCliRequest): boolean =>
-  (request.gamePaths?.length ?? 0) > 0 || request.delivers !== undefined || request.localItems === LocalItemsUse.Sync;
+/**
+ * Whether a call moves a store item's files: it uploads a picture, model or package, adds a shared
+ * item, or syncs. A small file the CLI only reads into its request (a bench's schema) is no upload.
+ */
+function movesItemFiles(request: GenexCliRequest): boolean {
+  const uploads = request.gamePaths?.some((arg) => !arg.small) ?? false;
+  return uploads || request.delivers !== undefined || request.localItems === LocalItemsUse.Sync;
+}
 
 /** An object, not a list or null. */
 const isPlainRecord = (value: unknown): value is Record<string, unknown> =>

@@ -104,10 +104,11 @@ import { createGenexLane, type GenexLaneDeps } from "../substrate/engines/genex.
 import { CodexEngine } from "../substrate/engines/codex.ts";
 import { OllamaEngine, OllamaSidecar } from "../substrate/engines/ollama.ts";
 import { OpenCodeEngine, openCodeSessionFolders } from "../substrate/engines/opencode.ts";
+import { PiEngine } from "../substrate/engines/pi.ts";
 import { AntigravityEngine } from "../substrate/engines/antigravity.ts";
 import { CursorEngine } from "../substrate/engines/cursor.ts";
 import { GrokEngine } from "../substrate/engines/grok.ts";
-import { cursorHomes, grokHome } from "../substrate/credential-homes.ts";
+import { cursorHomes, grokHome, piAgentDir } from "../substrate/credential-homes.ts";
 import { LOCK_RECOVERY_DIR } from "../substrate/engines/ownership-locks.ts";
 import { OpenRouterEngine } from "../substrate/engines/openrouter.ts";
 import { LocalServerEngine } from "../substrate/engines/local-server.ts";
@@ -1151,16 +1152,18 @@ export class StudioCore {
     // Windows: native jobs work in, and read pinned runtimes from, folders granted now. srt-win
     // changes grants only while no sandboxed command runs, and agents keep commands running.
     const windows = process.platform === StudioPlatform.Windows;
-    // OpenCode's, Grok Build's and Cursor's own folders too: their sessions run as the sandbox user
-    // and read their sign-ins there.
+    // OpenCode's, Grok Build's, Cursor's and Pi's own folders too: their sessions run as the sandbox
+    // user and read their sign-ins there.
     // They are optional: one a file stands in the way of (a `.cache` file in the home folder) is
     // left ungranted, and only that CLI misses it, instead of the studio not starting.
     const cliFolders = windows
-      ? await ensureDirsWhereMade([...openCodeSessionFolders(), grokHome(), ...cursorHomes()], (dir, err) =>
-          this.options.onLog?.(
-            `[core] a CLI folder could not be made, left ungranted: ${dir}: ${errorMessage(err)}`,
-            "stderr",
-          ),
+      ? await ensureDirsWhereMade(
+          [...openCodeSessionFolders(), grokHome(), ...cursorHomes(), piAgentDir()],
+          (dir, err) =>
+            this.options.onLog?.(
+              `[core] a CLI folder could not be made, left ungranted: ${dir}: ${errorMessage(err)}`,
+              "stderr",
+            ),
         )
       : [];
     if (windows) await mkdir(this.layout.nativeRuntimes, { recursive: true });
@@ -1622,6 +1625,7 @@ export class StudioCore {
       EngineId.Antigravity,
       EngineId.Genex,
       EngineId.OpenRouter,
+      EngineId.Pi,
     ]);
   }
 
@@ -1692,14 +1696,21 @@ export class StudioCore {
         onModelsChanged: () => this.emit(UiEvent.EnginesChanged, { engine: EngineId.Cursor }),
       }),
       this.#antigravityEngine(),
-      // Metered: OpenCode on whatever the person signed it in to, OpenRouter on the key pasted in
-      // Settings. Registered like the subscriptions, so the picker can offer them.
+      // Metered: OpenCode, Pi or Grok Build on whatever the person signed them in to, OpenRouter on
+      // the key pasted in Settings. Registered like the subscriptions, so the picker can offer them.
       new OpenCodeEngine({
         scratchRoot: path.join(this.layout.scratch, EngineId.OpenCode),
         protectedPaths: this.#protectedPaths(),
         toolPath: async () => (await this.sandbox.toolPath()) ?? process.env.PATH ?? "",
         lockRecovery: path.join(this.layout.engineHomes, LOCK_RECOVERY_DIR),
         onModelsChanged: () => this.emit(UiEvent.EnginesChanged, { engine: EngineId.OpenCode }),
+      }),
+      new PiEngine({
+        scratchRoot: path.join(this.layout.scratch, EngineId.Pi),
+        protectedPaths: this.#protectedPaths(),
+        toolPath: async () => (await this.sandbox.toolPath()) ?? process.env.PATH ?? "",
+        lockRecovery: path.join(this.layout.engineHomes, LOCK_RECOVERY_DIR),
+        onModelsChanged: () => this.emit(UiEvent.EnginesChanged, { engine: EngineId.Pi }),
       }),
       // Grok Build on the person's own Grok sign-in, in the studio's sandbox as OpenCode is (a
       // Bypass chat's builds run as the person, as Codex's do).
