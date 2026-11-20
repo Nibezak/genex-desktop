@@ -13,10 +13,10 @@ this preface, this preface wins.
 - Other commands map onto Studio tools as the `genex` skill describes
   (`genex__skill {"name":"genex"}`).
 
-<!-- upstream @genex-ai/cli-demo/templates/skills/genex-tool-llm/SKILL.md v1.43.6 sha256 0242e18d886d5e5ce3462908bcb57ad90b225176eaeef96a94c79724b309961b -->
+<!-- upstream genex-demo@6c79d69ed/apps/cli/templates/skills/genex-tool-llm/SKILL.md v1.44.0 sha256 fc87c7a9e032b15e6c7eecd1e279344d92d21efa961128aa1e23b55d322249d2 -->
 ---
 name: genex-tool-llm
-description: A language model running while somebody PLAYS the finished game — an NPC that answers in its own words, a quest written from what the player typed, a prompt box in the game. On Genex the player pays and approves it, so this is a platform feature, never a key on the author's meter.
+description: A language model running while somebody PLAYS the finished game — NPCs that answer in their own words, AI opponents, teammates or agents that plan and act, a narrator or game master, a quest written from what the player typed, a prompt box in the game. On Genex the player pays and approves it, so this is a platform feature, never a key on the author's meter.
 ---
 
 # Genex Tools · Models at play time
@@ -46,6 +46,9 @@ own.
 Any of these means a model at PLAY time, however it is phrased:
 
 - NPCs that talk, answer, argue, or decide in their own words
+- AI opponents, rivals, companions or teammates that choose their own moves
+- agents, a crew or factions that plan, negotiate, remember or act on their own
+- an AI narrator, storyteller, dungeon master or director reacting to play
 - anything written from what the player types — a name, a wish, a command, a question
 - a prompt box, a chat panel, an "ask the oracle" widget inside the game
 - quests, items, dialogue, or levels generated per save or per run

@@ -29,9 +29,30 @@ disagrees with this preface, this preface wins.
   publish a draft with `genex__publish {"operation":"draft"}` first. `init --convert` does not
   apply in Studio.
 
+## Not in Studio yet
+
+The card below is from Genex CLI 1.44.0, ahead of the CLI Studio runs. These parts of that release
+are left out of it because Studio cannot run them yet:
+
+- `llm bench` takes no `system` or `messages` option here. Put the system text and a typical
+  history into the bench prompt itself, so the measured size is the real call's.
+- Practice mode (`llm practice`), creator-paid budgets (`llm sponsor`, `sponsored: true`) and
+  `llm usage` are commands of that CLI. `features.sponsor` may read true on a stand; a game made
+  here still asks the player for the budget.
+- Model calls from a multiplayer server room (`shareWithRooms`, `lendSpendGrantToRoom`,
+  `ctx.models`) need a newer multiplayer SDK than Studio ships. `features.roomCalls` may read true
+  on a stand; a game made here calls the model from the player's page.
+- Unity, Godot, Rust and Unreal games have no model-call binding in Studio.
+
+`system`, `messages`, the controls and `features` work: Studio ships the SDK that has them.
+
 ## Reading the reference
 
 Read the pricing reference with
 `genex__skill {"name":"genex-llm-in-games","file":"skills/genex-llm-in-games/references/pricing.md"}`.
+
+Genex's optional advice on designing the feature (the system instruction and turns, state as
+data, legal moves, memory, several characters in one call, rules a character writes, hostile
+player text) is `play-time-models` in the `genex-recommendations` plugin.
 
 Other commands map onto Studio tools as the `genex` skill describes (`genex__skill {"name":"genex"}`).

@@ -520,6 +520,45 @@
     {
       "replace": " Batch and cache; do not raise the limits to hide it.",
       "with": ""
+    },
+    {
+      "from": "**Design the feature before you price it.** What goes in the call, what comes",
+      "to": "| an engine game (Unity, Godot, Rust, Unreal) | \"Other engines\" below |"
+    },
+    {
+      "replace": ": trim history, and benchmark the\n  real call with `--system <file>` and `--messages <file>`.",
+      "with": "."
+    },
+    {
+      "replace": " Two more options change who pays\n  or who may spend: `sponsored: true` asks for a budget paid by the game's\n  creator, with no sheet ([references/sponsor.md](references/sponsor.md)), and\n  `shareWithRooms: true` lets the player lend the budget to a multiplayer\n  server room with `lendSpendGrantToRoom(grantId, session.code)`\n  ([references/multiplayer.md](references/multiplayer.md)).",
+      "with": ""
+    },
+    {
+      "section": "## Other engines"
+    },
+    {
+      "from": "- [ ] The stable instruction is `system`, the turn carries only what changed, and every field the game acts on is an enum or a bounded number ([design](references/design.md))",
+      "to": "- [ ] A character is sent only what it could know; player text travels as data and grants nothing"
+    },
+    {
+      "replace": "- [ ] `content_blocked`, a queued call and `unavailable` each have a playable path",
+      "with": "- [ ] `content_blocked` and a queued call are handled"
+    },
+    {
+      "from": "- [ ] The feature was watched in practice mode, refusals included ([practice](references/practice.md)), then on the owner's test build",
+      "to": "- [ ] A creator-paid allowance was set only after the person agreed to its numbers"
+    },
+    {
+      "from": "**`{ status: 'unavailable' }` from `requestSpendGrant({ sponsored: true })`** —",
+      "to": "[references/sponsor.md](references/sponsor.md) says."
+    },
+    {
+      "replace": " (or the creator sponsors it)",
+      "with": ""
+    },
+    {
+      "replace": ", prompt and memory design, multiplayer rooms, local practice and every refusal.",
+      "with": " and every refusal."
     }
   ],
   "genex-llm-in-games/references/pricing.md": [
@@ -532,6 +571,10 @@
       "to": "  request to re-run."
     }
   ],
+  "genex-llm-in-games/references/design.md": "drop",
+  "genex-llm-in-games/references/multiplayer.md": "drop",
+  "genex-llm-in-games/references/practice.md": "drop",
+  "genex-llm-in-games/references/sponsor.md": "drop",
   "genex-monetization/SKILL.md": [
     {
       "replace": "Load this when the user asks to sell something or add payments. Build the game\nloop before adding commerce.",

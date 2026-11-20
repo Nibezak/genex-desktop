@@ -4152,8 +4152,10 @@ with the working dot, Checking fixes; none for a game Genex doesn't know) comes 
   `genex` plugin keeps Genex's product requirements and API facts: Studio's cuts (`cuts.json`, a
   section, a run of lines, a replaced sentence or a dropped reference, each matching the pinned text
   exactly once) take Genex's design and process advice out of the vendored text, and the steps
-  Studio refuses (the play-time model cards' `init --convert` and `llm price`), and the prefaces
-  carry the API facts those passages held. That advice, reworded as optional, is the bundled
+  Studio refuses (the play-time model cards' `init --convert` and `llm price`) or cannot run yet
+  (from CLI 1.44.0: practice mode, creator-paid budgets, model calls from a server room, the engine
+  bindings and the bench's `system` and `messages` options, with the four references that describe
+  them and the design guide dropped), and the prefaces carry the API facts those passages held. That advice, reworded as optional, is the bundled
   `genex-recommendations` plugin (skills only: multiplayer patterns, cover craft, asset sources, shop
   design, player experience, play-time models), which works under the hood of Genex (see
   [First-party privileges](#first-party-privileges)). Genex's currency is Nex (the cards
@@ -4164,7 +4166,7 @@ with the working dot, Checking fixes; none for a game Genex doesn't know) comes 
   CLI release not yet on npm changed is vendored ahead of the pin (`--ahead-from <apps/cli> --ahead
   <cards> --ahead-source <label>`): its files record that `version` and a `pending` note, plain
   refreshes keep them, and the test fails once the pin reaches that version until a refresh takes
-  them from the published CLI. Today every card comes from the pinned CLI 1.36.15, none ahead of it.
+  them from the published CLI. Today the two play-time model cards (`genex-llm-in-games`, `genex-tool-llm`) are ahead of the pin, from CLI 1.44.0; every other card comes from the pinned CLI.
 - The bundled CLI follows npm: every 6 hours `.github/workflows/genex-cli-follow.yml` compares
   npm's `latest` `@genex-ai/cli-demo` with the pin. When npm is ahead, `scripts/follow-genex-cli.ts`
   opens one bump PR against `dev` with the exact pin, refreshed skills, the plugin's next patch

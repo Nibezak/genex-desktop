@@ -74,19 +74,25 @@
       "bytes": 25911
     },
     "genex-llm-in-games/SKILL.md": {
-      "source": "@genex-ai/cli-demo/templates/skills/genex-llm-in-games/SKILL.md",
-      "sha256": "5049cd58a6cd1ceb43ceef71fd583fe7efa31a2030c0d2a3f41473ed8aed30d8",
-      "bytes": 27204
+      "source": "genex-demo@6c79d69ed/apps/cli/templates/skills/genex-llm-in-games/SKILL.md",
+      "sha256": "38fddf6a4244f70d0b879ca532c5da9b7b5a1dbc6d655224e65bd118b212ebb7",
+      "bytes": 29761,
+      "version": "1.44.0",
+      "pending": "CLI 1.44.0 is not on npm yet: vendored from genex-demo@6c79d69ed/apps/cli. Re-vendor from the published CLI (npm run genex:skills) once the package.json pin moves to 1.44.0."
     },
     "genex-llm-in-games/references/pricing.md": {
-      "source": "@genex-ai/cli-demo/templates/skills/genex-llm-in-games/references/pricing.md",
+      "source": "genex-demo@6c79d69ed/apps/cli/templates/skills/genex-llm-in-games/references/pricing.md",
       "sha256": "77b2fe6da82f69b372e943041b7c421f67a85c5fc02084ca2de446fefbe0c941",
-      "bytes": 11022
+      "bytes": 11022,
+      "version": "1.44.0",
+      "pending": "CLI 1.44.0 is not on npm yet: vendored from genex-demo@6c79d69ed/apps/cli. Re-vendor from the published CLI (npm run genex:skills) once the package.json pin moves to 1.44.0."
     },
     "genex-tool-llm/SKILL.md": {
-      "source": "@genex-ai/cli-demo/templates/skills/genex-tool-llm/SKILL.md",
-      "sha256": "0242e18d886d5e5ce3462908bcb57ad90b225176eaeef96a94c79724b309961b",
-      "bytes": 3824
+      "source": "genex-demo@6c79d69ed/apps/cli/templates/skills/genex-tool-llm/SKILL.md",
+      "sha256": "fc87c7a9e032b15e6c7eecd1e279344d92d21efa961128aa1e23b55d322249d2",
+      "bytes": 4134,
+      "version": "1.44.0",
+      "pending": "CLI 1.44.0 is not on npm yet: vendored from genex-demo@6c79d69ed/apps/cli. Re-vendor from the published CLI (npm run genex:skills) once the package.json pin moves to 1.44.0."
     },
     "genex-monetization/SKILL.md": {
       "source": "@genex-ai/cli-demo/templates/skills/genex-monetization/SKILL.md",
