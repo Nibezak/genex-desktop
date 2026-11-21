@@ -1470,7 +1470,7 @@ export default {
   "Fit every asset": "Afficher toutes les ressources",
   "Fit everything": "Tout ajuster",
   "Tidy up": "Ranger",
-  "Genex is drawing {title}": "Genex dessine {title}",
+  "Genex is drawing": "Genex dessine",
   "{title} · next": "{title} · ensuite",
   "{count, plural, one {# new pick} other {# new picks}}":
     "{count, plural, one {# nouveau choix} other {# nouveaux choix}}",

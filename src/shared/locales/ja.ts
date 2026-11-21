@@ -1414,7 +1414,7 @@ export default {
   "Fit every asset": "すべてのアセットを表示",
   "Fit everything": "全体を表示",
   "Tidy up": "整える",
-  "Genex is drawing {title}": "Genex が {title} を描いています",
+  "Genex is drawing": "Genex が描いています",
   "{title} · next": "{title} · 次",
   "{count, plural, one {# new pick} other {# new picks}}": "{count, plural, other {新しい選択 #件}}",
   "Use this": "これにする",

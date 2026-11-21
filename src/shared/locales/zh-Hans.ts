@@ -1332,7 +1332,7 @@ export default {
   "Fit every asset": "显示全部素材",
   "Fit everything": "显示全部",
   "Tidy up": "整理",
-  "Genex is drawing {title}": "Genex 正在画 {title}",
+  "Genex is drawing": "Genex 正在画",
   "{title} · next": "{title} · 接下来",
   "{count, plural, one {# new pick} other {# new picks}}": "{count, plural, other {# 个新选择}}",
   "Use this": "用这个",

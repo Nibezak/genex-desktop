@@ -1426,7 +1426,7 @@ export default {
   "Fit every asset": "Показать все ассеты",
   "Fit everything": "Вписать всё",
   "Tidy up": "Навести порядок",
-  "Genex is drawing {title}": "Genex рисует: {title}",
+  "Genex is drawing": "Genex рисует",
   "{title} · next": "{title} · дальше",
   "{count, plural, one {# new pick} other {# new picks}}":
     "{count, plural, one {# новый выбор} few {# новых выбора} many {# новых выборов} other {# нового выбора}}",
