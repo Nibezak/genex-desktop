@@ -46,6 +46,10 @@ const { readFileSync } = require("node:fs");
 const args = process.argv.slice(2);
 const authorization = "Basic " + Buffer.from("opencode:" + process.env.OPENCODE_PASSWORD).toString("base64");
 const flag = (name) => (args.includes(name) ? args[args.indexOf(name) + 1] : undefined);
+if (args[0] === "serve" && process.env.STAND_IN_SERVE_FAILS) {
+  process.stderr.write("Error: " + process.env.STAND_IN_SERVE_FAILS + "\\n");
+  process.exit(1);
+}
 if (args[0] === "serve") {
   const server = http.createServer((request, response) => {
     response.statusCode = request.headers.authorization === authorization ? 200 : 401;
@@ -426,6 +430,39 @@ describe("OpenCode sessions", () => {
     assert.equal(event?.served, await realpath(root), "the server works in the session's folder");
     const freed = await listenOn(port);
     await new Promise((resolve) => freed.close(resolve));
+  });
+
+  it("a 2.x server that fails to start on a free port says why, never that every port is taken", async () => {
+    const root = await tmpDir("opencode-serve-fails-");
+    const cli = await standInV2Cli(root);
+    const probe = await listenOn(0);
+    const top = portOf(probe);
+    await new Promise((resolve) => probe.close(resolve));
+    const real = await ProcessSandbox.create({
+      writableRoots: [root],
+      scratchDir: path.join(root, "scratch"),
+      secretPaths: [],
+      enabled: false,
+    });
+    const sandbox = {
+      spawnLongLived: (request: Parameters<ProcessSandbox["spawnLongLived"]>[0]) => real.spawnLongLived(request),
+      loopbackPorts: () => [top - 3, top] as const,
+    };
+    const invocation = {
+      argv: ["run", "--format", "json", "--standalone"],
+      cwd: root,
+      prompt: "Write hello",
+      env: { STAND_IN_SERVE_FAILS: "EEXIST: file already exists, mkdir" },
+      signal: new AbortController().signal,
+      domains: [],
+    };
+    try {
+      await assert.rejects(async () => {
+        for await (const _event of openCodeEvents(sandbox, cli, invocation));
+      }, new Error("OpenCode's own server did not start: Error: EEXIST: file already exists, mkdir"));
+    } finally {
+      await real.dispose();
+    }
   });
 
   it("where loopback is the session's own, 2.x starts its server itself", async () => {

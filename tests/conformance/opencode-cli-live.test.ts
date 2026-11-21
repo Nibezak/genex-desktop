@@ -15,7 +15,12 @@ import { after, before, describe, it } from "node:test";
 import { EngineId } from "../../src/shared/providers.ts";
 import { runCommand } from "../../src/substrate/engines/claude-cli.ts";
 import { resolveCodingCli } from "../../src/substrate/engines/external-cli.ts";
-import { OpenCodeEngine, type OpenCodeExec, openCodeEvents } from "../../src/substrate/engines/opencode.ts";
+import {
+  OpenCodeEngine,
+  type OpenCodeExec,
+  openCodeEvents,
+  openCodeSessionFolders,
+} from "../../src/substrate/engines/opencode.ts";
 import { LoopbackProtocol } from "../../src/substrate/linux-loopback-bridge.ts";
 import { ProcessSandbox } from "../../src/substrate/spawn.ts";
 import { anyLoopbackPort } from "../../src/main/core/genex-room.ts";
@@ -110,7 +115,11 @@ describe("OpenCode 2.x with the real CLI", { skip: !LIVE && "set STUDIO_OPENCODE
    */
   const engine = (fenced?: readonly [number, number]) => {
     const execFn: OpenCodeExec = async function* (invocation) {
-      const sandbox = await ProcessSandbox.create(invocation.sandbox);
+      // As the studio's own sandbox grants OpenCode's folders at its start (on Windows a session runs
+      // as the sandbox's own user, who may read nothing else): here, the test's own folders and its config.
+      const configDir = path.join(process.env.XDG_CONFIG_HOME ?? "", "opencode");
+      const writableRoots = [...invocation.sandbox.writableRoots, ...openCodeSessionFolders(), configDir];
+      const sandbox = await ProcessSandbox.create({ ...invocation.sandbox, writableRoots });
       const session = {
         spawnLongLived: (request: Parameters<ProcessSandbox["spawnLongLived"]>[0]) => sandbox.spawnLongLived(request),
         loopbackPorts: () => fenced ?? sandbox.loopbackPorts(),

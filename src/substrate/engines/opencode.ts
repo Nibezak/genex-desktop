@@ -134,6 +134,7 @@ const MESSAGE = {
   UnknownVersion: "Genex can't tell which OpenCode version this is. Check it again in Settings › Model Providers.",
   ServerSilent: "OpenCode's model server did not say where it answers",
   OwnServerSilent: "OpenCode's own server did not start in time",
+  OwnServerFailed: (words: string) => `OpenCode's own server did not start: ${words}`,
   NoServerPort: (range: readonly [number, number]) =>
     `OpenCode found no free port for its own server (${range.join("-")}): other sessions or programs hold them all. Try again when one ends.`,
   ListingFailed: (status: number) => `OpenCode's model server answered ${status}`,
@@ -1123,7 +1124,8 @@ function onOwnServer(invocation: SessionStart, server: OwnServer): SessionStart 
 /**
  * `opencode serve` in the session's sandbox, folder and environment, on the highest free port of
  * `range` (the sandbox's proxies take it from the bottom), with a password made here. A server
- * that exits before it listens lost its port to another program: the next port is tried.
+ * that exits before it listens on a port another program took meanwhile lost a race: the next port
+ * is tried. One that exits with its port still free failed to start, and its stderr says why.
  */
 async function startOwnServer(
   sandbox: SessionSandbox,
@@ -1144,14 +1146,15 @@ async function startOwnServer(
       label: `opencode-server:${path.basename(invocation.cwd)}`,
       policy: { allowedDomains: invocation.domains },
     });
-    // Nothing it prints is read: a full pipe would stop it.
+    // Its stdout is never read (a full pipe would stop it); stderr's tail explains a failed start.
     child.stdout?.resume();
-    child.stderr?.resume();
+    const said = stderrTail(child);
     const listening = await ownServerListening(child, port, invocation.signal).catch(async (err: unknown) => {
       await stopOwnServer(child);
       throw err;
     });
     if (listening) return { child, url: `http://${LOOPBACK_HOST}:${port}`, password };
+    if (await loopbackPortFree(port, LoopbackProtocol.Tcp)) throw await serverFailed(child, said);
   }
   throw new Error(MESSAGE.NoServerPort(range));
 }
@@ -1174,6 +1177,24 @@ async function ownServerListening(child: ChildProcess, port: number, signal: Abo
     await sleep(OWN_SERVER_POLL_MS);
   }
   throw new Error(MESSAGE.OwnServerSilent);
+}
+
+/** The last of what `child` says on stderr, as it says it. */
+function stderrTail(child: ChildProcess): () => string {
+  let tail = "";
+  child.stderr?.setEncoding("utf8");
+  child.stderr?.on("data", (chunk: string) => {
+    tail = `${tail}${chunk}`.slice(-STDERR_TAIL_CHARS);
+  });
+  return () => tail;
+}
+
+/** A session's server that exited before it listened, explained by its stderr once it has closed. */
+async function serverFailed(child: ChildProcess, said: () => string): Promise<Error> {
+  if (child.exitCode === null && child.signalCode === null)
+    await Promise.race([new Promise((resolve) => child.once("close", resolve)), sleep(KILL_GRACE_MS)]);
+  const words = stripTerminalCodes(said()).trim();
+  return new Error(MESSAGE.OwnServerFailed(words || MESSAGE.Stopped(child.exitCode)));
 }
 
 /** Whether a connection to `port` on this computer's loopback opens now. */
