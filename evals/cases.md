@@ -501,7 +501,8 @@ this draft has no raw counterpart until the owner decides one.
 [ ] KEY: the game ships with its model calls on: no switch, flag or setting leaves them off
 [ ] the per-call ceiling in the game is a number a benchmark printed in the transcript; where no
     benchmark ran (its card declined or unanswered, asked once), it is the provisional ceiling
-    (`maxCredits` 2, a budget's `perCallMaxCredits` 8 and `perCallEstimateCredits` 1), marked
+    (a call starts at `maxCredits` 4, a budget's `perCallMaxCredits` 16 and `perCallEstimateCredits`
+    1; a call cut off as `provider_token_limit` doubles its `maxCredits` up to 16), marked
     provisional in the code, and the agent said so
 [ ] KEY: a player who declines the approval gets her written lines, and the game stays playable
     <- "get by on lines you wrote for her"
