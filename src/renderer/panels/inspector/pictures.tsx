@@ -21,7 +21,7 @@ const SPLIT_STEP = 0.05;
 export const IMAGE_OUTLINE = "0 0 0 1px var(--image-outline)";
 
 /**
- * The mark of the tool an asset was made with (Tripo, Meshy, Blender…), on its picture's top-left
+ * The mark of the tool an asset was made with (Tripo, Meshy, Blender…), on its picture's bottom-left
  * corner; nothing for a plugin whose tool has no mark. The picture's frame is `relative`.
  */
 export function MadeWith({ job }: { job: { source: string; operation: string | null } }): JSX.Element | null {

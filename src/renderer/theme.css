@@ -6710,12 +6710,12 @@ a:focus-visible {
   object-fit: contain;
   background: #1d1e21;
 }
-/* The tool an asset was made with, on its picture's corner in Builds (inspector/pictures.tsx): the
+/* The tool an asset was made with, on its picture's bottom-left corner in Builds (inspector/pictures.tsx): the
    bare logo, a soft shadow keeping it readable on any picture. A mark drawn light (OpenAI,
    ElevenLabs, Genex) turns dark in the light theme, where a tile with no picture is light. */
 .made-with-mark {
   position: absolute;
-  top: 5px;
+  bottom: 5px;
   left: 5px;
   z-index: 1;
   width: 12px;
