@@ -179,6 +179,124 @@ export async function templateLoadsGenexSdk(dir: string): Promise<boolean> {
   return html !== null && pageLoadsGenexSdk(html);
 }
 
+/** The SDK calls that reach a play-time model, by name: any of them means the game calls one. */
+const MODEL_CALL_NAMES = /\b(?:requestSpendGrant|generateStream|getGenerationModels)\b|\bjudge\s*\(/;
+/** A call of `generate(`, which counts only where the code imports it from the SDK. */
+const GENERATE_CALL = /(?<![\w$])generate\s*\(/;
+/** An import of `generate` from the SDK, by its package name or Studio's copy (`/vendor/genex/`). */
+const GENERATE_IMPORT =
+  /import\s*\{[^}]*\bgenerate\b[^}]*\}\s*from\s*["'](?:@genex-ai\/embed-sdk[^"']*|[^"']*\/vendor\/genex\/[^"']*)["']/;
+/** The most of one file the check reads: a larger file is a bundle or data, not the game's own code. */
+const MODEL_SCAN_MAX_BYTES = 1024 * 1024;
+/** The most files of a game the check reads. */
+const MODEL_SCAN_MAX_FILES = 400;
+/** How deep in a game's folders the check looks. */
+const MODEL_SCAN_MAX_DEPTH = 6;
+/** The files that hold a web game's code. */
+const CODE_EXTENSIONS: ReadonlySet<string> = new Set([".js", ".mjs", ".cjs", ".ts", ".mts", ".tsx", ".jsx", ".html"]);
+/** Folders that hold no code of the game's own: packages, builds, Studio's copies. */
+const NOT_OWN_CODE: ReadonlySet<string> = new Set(["node_modules", "dist", "build", "out", "vendor"]);
+
+/** The quotes a JavaScript string opens with. */
+const QUOTES: ReadonlySet<string> = new Set(['"', "'", "`"]);
+
+/**
+ * `code` with its comments and the insides of its strings blanked, so a name in a comment or a
+ * message is not a call. A rough reader of JavaScript (no regular-expression literals): it only
+ * ever blanks too much, never too little.
+ */
+function codeOnly(code: string): string {
+  let out = "";
+  let at = 0;
+  while (at < code.length) {
+    const char = code[at] ?? "";
+    const end = skippedEnd(code, at);
+    if (end === null) {
+      out += char;
+      at += 1;
+      continue;
+    }
+    // A string keeps its quotes, so an import's source can still be read as one.
+    out += QUOTES.has(char) ? quotedSource(code.slice(at, end)) : " ";
+    at = end;
+  }
+  return out;
+}
+
+/** Just past the comment or string that opens at `at`, or null where none opens. */
+function skippedEnd(code: string, at: number): number | null {
+  const two = code.slice(at, at + 2);
+  if (two === "//") {
+    const line = code.indexOf("\n", at);
+    return line === -1 ? code.length : line;
+  }
+  if (two === "/*") {
+    const close = code.indexOf("*/", at + 2);
+    return close === -1 ? code.length : close + 2;
+  }
+  const char = code[at] ?? "";
+  return QUOTES.has(char) ? stringEnd(code, at, char) : null;
+}
+
+/** Just past the string that opens at `at` with `quote`, or the end of the code. */
+function stringEnd(code: string, at: number, quote: string): number {
+  for (let i = at + 1; i < code.length; i++) {
+    if (code[i] === "\\") i++;
+    else if (code[i] === quote) return i + 1;
+    else if (code[i] === "\n" && quote !== "`") return i;
+  }
+  return code.length;
+}
+
+/** A string as the check keeps it: whole when it names a module (an import's source), else empty quotes. */
+function quotedSource(text: string): string {
+  const inside = text.slice(1, -1);
+  return /^(?:@genex-ai\/embed-sdk|[^\s]*\/vendor\/genex\/)[^\s]*$/.test(inside) ? text : '""';
+}
+
+/**
+ * Whether a game's code calls a play-time model through the Genex SDK: it names
+ * `requestSpendGrant`, `generateStream`, `getGenerationModels` or calls `judge(`, or calls
+ * `generate(` it imports from the SDK. Comments and strings do not count; neither does a file over
+ * {@link MODEL_SCAN_MAX_BYTES}.
+ */
+export function codeCallsPlayTimeModels(code: string): boolean {
+  if (code.length > MODEL_SCAN_MAX_BYTES) return false;
+  const plain = codeOnly(code);
+  if (MODEL_CALL_NAMES.test(plain)) return true;
+  return GENERATE_CALL.test(plain) && GENERATE_IMPORT.test(plain);
+}
+
+/** The game's own code files, never through a link out of it, at most {@link MODEL_SCAN_MAX_FILES}. */
+async function ownCodeFiles(dir: string, depth = 0, found: string[] = []): Promise<string[]> {
+  if (depth > MODEL_SCAN_MAX_DEPTH) return found;
+  const entries = await readdir(dir, { withFileTypes: true }).catch(() => []);
+  for (const entry of entries) {
+    if (found.length >= MODEL_SCAN_MAX_FILES) break;
+    if (entry.name.startsWith(".") || entry.isSymbolicLink()) continue;
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory() && !NOT_OWN_CODE.has(entry.name)) await ownCodeFiles(full, depth + 1, found);
+    else if (entry.isFile() && CODE_EXTENSIONS.has(path.extname(entry.name).toLowerCase())) found.push(full);
+  }
+  return found;
+}
+
+/**
+ * Whether a game calls play-time models in its preview: its page loads the Genex SDK (Studio's copy
+ * in its import map, or the SDK in its package) and its own code calls a model
+ * ({@link codeCallsPlayTimeModels}). Such a game gets a practice helper beside its preview.
+ */
+export async function gameCallsPlayTimeModels(dir: string): Promise<boolean> {
+  const html = await readFile(path.join(dir, TEMPLATE_SHAPE.entry), "utf8").catch(() => null);
+  const loadsSdk = (html !== null && pageLoadsGenexSdk(html)) || isGenexGame(await readPackageManifest(dir));
+  if (!loadsSdk) return false;
+  for (const file of await ownCodeFiles(dir)) {
+    const code = await readFile(file, "utf8").catch(() => "");
+    if (codeCallsPlayTimeModels(code)) return true;
+  }
+  return false;
+}
+
 /**
  * Read a folder's own shape from the evidence in it: every script the page loads, the package's
  * build script and dependencies, the bundler's output folder, the engine's runtime files.

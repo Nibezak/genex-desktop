@@ -147,7 +147,7 @@ import { PluginRegistry } from "../substrate/plugins/registry.ts";
 import { PluginServices } from "../substrate/plugins/services.ts";
 import { createEngineLinks, type EngineLinks } from "../substrate/plugins/engine-links.ts";
 import type { PreviewInputAction } from "../substrate/preview-input.ts";
-import { DEFAULT_POOL_MAX } from "../substrate/preview-pool.ts";
+import { DEFAULT_POOL_MAX, LIVE_HANDLE } from "../substrate/preview-pool.ts";
 import type { PreviewConsoleEntry, PreviewPixelStats, PreviewPort } from "../substrate/preview-port.ts";
 import { SnapshotEngine, SnapshotIndex, HARNESS_WORKSPACE } from "../substrate/snapshots.ts";
 import { gitMissingProblem, SandboxUnavailableError } from "../substrate/sandbox-unavailable.ts";
@@ -180,6 +180,7 @@ import {
   standCredentialFile,
 } from "./core/genex-cli.ts";
 import { GenexRoomService } from "./core/genex-room.ts";
+import { PreviewAiService } from "./core/preview-ai.ts";
 import { isLocalDraft, type ListingRecord } from "../shared/item-draft.ts";
 import { type CreatorItem, type Selling, type StoreRefused, StoreRefusal } from "../shared/store-items.ts";
 import { ITEM_APPROVALS_FILE, ItemApprovals } from "./core/item-approvals.ts";
@@ -470,6 +471,8 @@ export interface StudioCoreOptions {
   execPath?: string;
   /** The room-module toolchain's folder: the Genex plugin's build in resources unless a test names one. */
   authorityDev?: string;
+  /** The pinned Genex CLI's entry: the Genex plugin's build in resources unless a test names one. */
+  genexCli?: string;
   runAsNode?: boolean;
   /** The app's version, stamped into the harness seed manifest (substrate/seed-upgrade.ts `writer`). */
   appVersion?: string;
@@ -553,6 +556,12 @@ export interface StudioCoreOptions {
    */
   genexStand?: GenexStand;
   /**
+   * Whether Live may switch a game's play-time models to real ones on the person's own Genex
+   * credits (`PreviewAiService`): the app's real launches; never a fixture or a test, where the bar
+   * answers that real models are not available here. Absent: no.
+   */
+  previewAiLive?: boolean;
+  /**
    * A game's local item drafts after its publish: Put on sale as the app's Genex account, and in a
    * fixture launch the fixture's own sync and sharing in place of the CLI's (`dev/fixture-items.ts`).
    * Absent: nothing a local draft's settle uploads goes on sale.
@@ -579,6 +588,8 @@ export class StudioCore {
   readonly games: GameWorkspaces;
   /** The games' design boards: read for the Design tab, served to its frames, shown by a game's agent. */
   readonly design: DesignBoardService = new DesignBoardService(this);
+  /** Play-time models in the previews: practice helpers, and real models in Live once the person approved a cap. */
+  readonly previewAi: PreviewAiService;
   readonly journal: UpdateJournal;
   readonly ollamaSidecar: OllamaSidecar;
   /** Token bookkeeping + improvement-class caps, enforced at the engine seam (A9). */
@@ -624,6 +635,8 @@ export class StudioCore {
   readonly #previews: PreviewService;
   /** The games' local rooms; set with the plugin programs. */
   #genexRoom: GenexRoomService | null = null;
+  /** The pinned Genex CLI the practice helpers start from; made on first use. */
+  #cli: GenexCliService | null = null;
   readonly #delegation: DelegationService;
   readonly #recovery: RecoveryService;
   /** Resumes a paused build on its own once its limit resets or its loop runs again. */
@@ -752,6 +765,7 @@ export class StudioCore {
       ...options.observers,
     });
     this.#previews = new PreviewService(this, this.#x);
+    this.previewAi = this.#createPreviewAi();
     this.#delegation = new DelegationService(this, this.#x);
     this.#finishReviews = this.#createFinishReviews();
     this.#recovery = new RecoveryService(this, this.#x);
@@ -1389,6 +1403,26 @@ export class StudioCore {
     });
   }
 
+  /** Practice helpers beside the previews, run like `genex__cli` runs the CLI. */
+  #createPreviewAi(): PreviewAiService {
+    const cli = (): GenexCliService => {
+      this.#cli ??= this.#genexCli();
+      return this.#cli;
+    };
+    return new PreviewAiService(
+      {
+        launch: (project, live) => cli().practiceLaunch(project, live),
+        spawn: (request) => this.sandbox.spawnLongLived(request),
+        signedIn: () => cli().signedIn(),
+        hasDraft: (project) => cli().hasHostedProject(project),
+        liveAllowed: () => this.options.previewAiLive === true,
+        emit: (state) => this.emit(UiEvent.PreviewAi, state),
+        reloadLive: (project) => this.#previews.reloadLiveFor(project),
+      },
+      LIVE_HANDLE,
+    );
+  }
+
   #genexCli(): GenexCliService {
     const stand = this.options.genexStand;
     return new GenexCliService({
@@ -1408,6 +1442,7 @@ export class StudioCore {
       boundGame: (binding) =>
         boundGameFolder(binding, { gameDir: (project) => this.games.dirFor(project), scratch: this.layout.scratch }),
       ...(this.options.execPath ? { execPath: this.options.execPath } : {}),
+      ...(this.options.genexCli ? { cliPath: this.options.genexCli } : {}),
     });
   }
 
@@ -1913,6 +1948,8 @@ export class StudioCore {
     // A pause appended before `start()` may have planned a resume: it, and the hold on the Mac
     // awake that it asked for, end with the core either way.
     this.#autoResume.dispose();
+    // No practice helper outlives the app, started or not.
+    await this.previewAi.stopAll().catch(() => {});
     // `init()` opened the sandbox and the job registry, so a core that never started still stops
     // the jobs it was handed and gives the sandbox back.
     if (!this.#started) {
