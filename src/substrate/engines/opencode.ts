@@ -20,6 +20,7 @@ import os from "node:os";
 import path from "node:path";
 import { createInterface } from "node:readline";
 import { setTimeout as sleep } from "node:timers/promises";
+import type { Writable } from "node:stream";
 import { promisify } from "node:util";
 import { CATALOG_DEADLINE_MS, ModelCatalog } from "./model-catalog.ts";
 import { cliVersion, resolveCodingCli } from "./external-cli.ts";
@@ -1098,13 +1099,17 @@ export async function* openCodeEvents(
   try {
     yield* sessionEvents(sandbox, binary, onOwnServer(invocation, server));
   } finally {
-    await stopOwnServer(server.child);
+    await stopOwnServer(server);
     CLAIMED_PORTS.delete(server.port);
   }
 }
 
-/** End a session's server and everything it started (the sandbox's shell runs it one level down). */
-async function stopOwnServer(child: ChildProcess): Promise<void> {
+/**
+ * End a session's server: its input closed, which ends a `--stdio` server, then it and everything it
+ * started (the sandbox's shell runs it one level down).
+ */
+async function stopOwnServer({ child, input }: Pick<OwnServer, "child" | "input">): Promise<void> {
+  input.end();
   const closed = new Promise<void>((resolve) => child.once("close", () => resolve()));
   const exited = child.exitCode !== null || child.signalCode !== null;
   await treeKiller(child)().catch(() => {});
@@ -1114,6 +1119,8 @@ async function stopOwnServer(child: ChildProcess): Promise<void> {
 /** A session's own server: its process, where it answers and the password it takes. */
 interface OwnServer {
   child: ChildProcess;
+  /** Its stdin, held open for its life: a `--stdio` server ends when it closes. */
+  input: Writable;
   port: number;
   url: string;
   password: string;
@@ -1169,13 +1176,18 @@ async function serverOnPort(
 ): Promise<OwnServer | null> {
   const { port, password } = claim;
   if (!(await loopbackPortFree(port, LoopbackProtocol.Tcp))) return null;
-  const serve = [binary, "serve", "--hostname", LOOPBACK_HOST, "--port", String(port)];
-  const { child } = await sandbox.spawnLongLived({
+  // `--stdio` as `--standalone` starts it: the server forgets its password before any tool of the
+  // session runs (commands it starts would read it otherwise), and it ends when its stdin closes,
+  // so a Genex that quits without stopping it frees its port. srt-win passes no stdin of the child
+  // on: the live-input relay holds it.
+  const serve = [binary, "serve", "--stdio", "--hostname", LOOPBACK_HOST, "--port", String(port)];
+  const { child, input } = await sandbox.spawnLongLived({
     command: serve.map(shellQuote).join(" "),
     cwd: invocation.cwd,
     env: { ...invocation.env, OPENCODE_PASSWORD: password },
     label: `opencode-server:${path.basename(invocation.cwd)}`,
     policy: { allowedDomains: invocation.domains },
+    liveInput: true,
   });
   // Its stdout is never read (a full pipe would stop it); stderr's tail explains a failed start.
   child.stdout?.resume();
@@ -1183,11 +1195,12 @@ async function serverOnPort(
   const url = `http://${LOOPBACK_HOST}:${port}`;
   const listening = await ownServerListening(child, { url, password }, invocation.signal).catch(
     async (err: unknown) => {
-      await stopOwnServer(child);
+      await stopOwnServer({ child, input });
       throw err;
     },
   );
-  if (listening) return { child, port, url, password };
+  if (listening) return { child, input, port, url, password };
+  input.end();
   if (await loopbackPortFree(port, LoopbackProtocol.Tcp)) throw await serverFailed(child, said);
   return null;
 }

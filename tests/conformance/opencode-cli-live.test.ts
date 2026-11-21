@@ -40,7 +40,9 @@ const TURN_TIMEOUT_MS = 120_000;
 const VERSION_TIMEOUT_MS = 30_000;
 /** What the scripted command writes in the session's folder. */
 const PROOF = { file: "opencode-proof.txt", text: "ok" } as const;
-const PROBE_SOURCE = `import { writeFileSync } from "node:fs";\nwriteFileSync(${JSON.stringify(PROOF.file)}, ${JSON.stringify(PROOF.text)});\nconsole.log("probe ran");\n`;
+/** The words the probe prints when a server's password reaches the session's commands. */
+const PASSWORD_SEEN = "server password visible";
+const PROBE_SOURCE = `import { writeFileSync } from "node:fs";\nwriteFileSync(${JSON.stringify(PROOF.file)}, ${JSON.stringify(PROOF.text)});\nif (process.env.OPENCODE_PASSWORD || process.env.OPENCODE_SERVER_PASSWORD) console.log(${JSON.stringify(PASSWORD_SEEN)});\nconsole.log("probe ran");\n`;
 /** How many ports below a free one the made-up fenced range spans. */
 const FENCED_PORTS = 5;
 /** OpenCode's own name for its shell tool. */
@@ -153,6 +155,11 @@ describe("OpenCode 2.x with the real CLI", { skip: !LIVE && "set STUDIO_OPENCODE
     assert.ok(result.sessionId, "a session Continue can resume");
     assert.equal(await readFile(path.join(dir, PROOF.file), "utf8"), PROOF.text);
     assert.match(fake.commandOutput() ?? "", /probe ran/);
+    assert.doesNotMatch(
+      fake.commandOutput() ?? "",
+      new RegExp(PASSWORD_SEEN),
+      "no command of the session reads its server's password",
+    );
   }
 
   it("builds: the session reaches its own server, the scripted command runs in the game folder and the turn ends with the reply (#825)", {
