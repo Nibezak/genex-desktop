@@ -1466,7 +1466,7 @@ export default {
   "Fit every asset": "Ajustar todos os recursos",
   "Fit everything": "Ajustar tudo",
   "Tidy up": "Arrumar",
-  "Genex is drawing {title}": "O Genex está desenhando {title}",
+  "Genex is drawing": "O Genex está desenhando",
   "{title} · next": "{title} · em seguida",
   "{count, plural, one {# new pick} other {# new picks}}":
     "{count, plural, one {# escolha nova} other {# escolhas novas}}",
@@ -3616,12 +3616,19 @@ export default {
   Stopped: "Parado",
   "Stopped adding the Luau checks. Nothing was kept.":
     "A adição das verificações de Luau foi interrompida. Nada foi guardado.",
+  "Stopped before it started — nothing was done. Send a message to go on.":
+    "Parado antes de começar: nada foi feito. Envie uma mensagem para continuar.",
+  "Stopped before the build started — nothing was built.": "Parado antes de o build começar: nada foi criado.",
   "Stopped getting Roblox Studio.": "O Genex parou de baixar o Roblox Studio.",
   "Stopped getting Roblox Studio. Anything Roblox's installer already put on this computer stays.":
     "O Genex parou de baixar o Roblox Studio. O que o instalador do Roblox já colocou neste computador continua aqui.",
   "Stopped play": "Partida parada",
+  "Stopped waiting. Send a message to go on once it's ready.":
+    "Parei de esperar. Envie uma mensagem para continuar quando estiver pronto.",
   "Stopped.": "Parado.",
   "Stopped. Everything built so far is kept.": "Parado. Tudo o que foi criado até agora foi mantido.",
+  "Stopped. Finished edits are preserved; send a message to continue.":
+    "Parado. As alterações concluídas foram mantidas; envie uma mensagem para continuar.",
   "Stopped. What it built is in your game now.": "Parado. O que foi criado já está no seu jogo.",
   "Stopped. What it built is kept in your project.": "Parado. O que foi criado está guardado no seu projeto.",
   "Stopped. Your game is as you left it.": "Parado. Seu jogo está como você deixou.",
@@ -6553,4 +6560,26 @@ export default {
   "Sees images": "Vê imagens",
   "Step {n} of {total} · {name}": "Passo {n} de {total} · {name}",
   "Version {version} is in your game": "A versão {version} já está no seu jogo",
+  "Add {cap} more": "Adicionar mais {cap}",
+  Allow: "Permitir",
+  "Genex's real models are switched off right now. Practice answers go on.":
+    "Os modelos reais da Genex estão desligados agora. As respostas de treino continuam.",
+  "Most credits this play session may spend": "Máximo de créditos nesta sessão de jogo",
+  "Practice answers (free, made up)": "Respostas de treino (grátis, inventadas)",
+  "Practice answers could not start: {error}": "As respostas de treino não começaram: {error}",
+  "Real AI is billed to this game's draft on Genex, and it has none yet. Ask the chat to publish a draft, then try again. Practice answers go on.":
+    "A IA real é cobrada no rascunho deste jogo na Genex, e ele ainda não tem um. Peça ao chat para publicar um rascunho e tente de novo. As respostas de treino continuam.",
+  "Real AI is not available in this test profile. Practice answers go on.":
+    "A IA real não está disponível neste perfil de teste. As respostas de treino continuam.",
+  "Real AI needs you signed in to Genex. Sign in from Settings, then try again. Practice answers go on.":
+    "A IA real precisa que você entre na Genex. Entre pelos Ajustes e tente de novo. As respostas de treino continuam.",
+  "Real AI stopped. Practice answers go on.": "A IA real parou. As respostas de treino continuam.",
+  "Real AI · {spent} of {cap} credits": "IA real · {spent} de {cap} créditos",
+  "Real models answer in this preview, paid from your Genex credits: at most {cap} credits ({dollars}) for this play session.":
+    "Nesta prévia respondem modelos reais, pagos com seus créditos da Genex: no máximo {cap} créditos ({dollars}) nesta sessão de jogo.",
+  Start: "Começar",
+  "Starting real AI…": "Iniciando a IA real…",
+  "The cap is used up": "O limite acabou",
+  "This game wants to hear you through your microphone.": "Este jogo quer ouvir você pelo microfone.",
+  "Use real AI": "Usar IA real",
 } satisfies LocaleCatalog;

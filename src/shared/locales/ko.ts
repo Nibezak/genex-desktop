@@ -1384,7 +1384,7 @@ export default {
   "Fit every asset": "모든 에셋 보기",
   "Fit everything": "전체 보기",
   "Tidy up": "정리",
-  "Genex is drawing {title}": "Genex가 {title} 그리는 중",
+  "Genex is drawing": "Genex가 그리는 중",
   "{title} · next": "{title} · 다음",
   "{count, plural, one {# new pick} other {# new picks}}": "{count, plural, other {새 선택 #개}}",
   "Use this": "이걸로",
@@ -3482,12 +3482,19 @@ export default {
   "Stop your builds and replies first, then move.": "먼저 빌드와 답변을 멈춘 다음 옮기세요.",
   Stopped: "중지됨",
   "Stopped adding the Luau checks. Nothing was kept.": "Luau 검사 추가를 중지했어요. 아무것도 보관하지 않았어요.",
+  "Stopped before it started — nothing was done. Send a message to go on.":
+    "시작하기 전에 중지했어요. 아무것도 하지 않았어요. 계속하려면 메시지를 보내 주세요.",
+  "Stopped before the build started — nothing was built.": "빌드가 시작되기 전에 중지했어요. 아무것도 만들지 않았어요.",
   "Stopped getting Roblox Studio.": "Roblox Studio 받기를 멈췄어요.",
   "Stopped getting Roblox Studio. Anything Roblox's installer already put on this computer stays.":
     "Roblox Studio 받기를 멈췄어요. Roblox 설치 프로그램이 이미 이 컴퓨터에 넣은 것은 그대로 남아요.",
   "Stopped play": "플레이를 멈췄어요",
+  "Stopped waiting. Send a message to go on once it's ready.":
+    "기다리기를 멈췄어요. 준비되면 메시지를 보내 계속하세요.",
   "Stopped.": "중지했어요.",
   "Stopped. Everything built so far is kept.": "중지했어요. 지금까지 만든 것은 모두 남아 있어요.",
+  "Stopped. Finished edits are preserved; send a message to continue.":
+    "중지했어요. 완료된 수정 사항은 저장돼 있어요. 계속하려면 메시지를 보내 주세요.",
   "Stopped. What it built is in your game now.": "중지했어요. 만든 것은 이제 게임에 반영돼 있어요.",
   "Stopped. What it built is kept in your project.": "중지했어요. 만든 것은 프로젝트에 남아 있어요.",
   "Stopped. Your game is as you left it.": "중지했어요. 게임은 그대로예요.",
@@ -6327,4 +6334,26 @@ export default {
   "Sees images": "이미지 인식",
   "Step {n} of {total} · {name}": "{total}단계 중 {n}단계 · {name}",
   "Version {version} is in your game": "버전 {version}이 게임에 들어갔어요",
+  "Add {cap} more": "{cap} 더 추가",
+  Allow: "허용",
+  "Genex's real models are switched off right now. Practice answers go on.":
+    "지금 Genex의 실제 모델이 꺼져 있어. 연습 답변은 계속돼.",
+  "Most credits this play session may spend": "이번 플레이에서 쓸 수 있는 최대 크레딧",
+  "Practice answers (free, made up)": "연습 답변 (무료, 지어낸 답)",
+  "Practice answers could not start: {error}": "연습 답변을 시작하지 못했어: {error}",
+  "Real AI is billed to this game's draft on Genex, and it has none yet. Ask the chat to publish a draft, then try again. Practice answers go on.":
+    "실제 AI는 Genex에 있는 이 게임의 초안으로 청구되는데, 아직 초안이 없어. 채팅에 초안을 게시해 달라고 한 다음 다시 해 봐. 연습 답변은 계속돼.",
+  "Real AI is not available in this test profile. Practice answers go on.":
+    "이 테스트 프로필에서는 실제 AI를 쓸 수 없어. 연습 답변은 계속돼.",
+  "Real AI needs you signed in to Genex. Sign in from Settings, then try again. Practice answers go on.":
+    "실제 AI를 쓰려면 Genex에 로그인해야 해. 설정에서 로그인한 다음 다시 해 봐. 연습 답변은 계속돼.",
+  "Real AI stopped. Practice answers go on.": "실제 AI가 멈췄어. 연습 답변은 계속돼.",
+  "Real AI · {spent} of {cap} credits": "실제 AI · {cap} 중 {spent} 크레딧",
+  "Real models answer in this preview, paid from your Genex credits: at most {cap} credits ({dollars}) for this play session.":
+    "이 미리보기에서는 실제 모델이 답하고, 네 Genex 크레딧으로 결제돼: 이번 플레이에서 최대 {cap} 크레딧 ({dollars}).",
+  Start: "시작",
+  "Starting real AI…": "실제 AI 시작하는 중…",
+  "The cap is used up": "한도를 다 썼어",
+  "This game wants to hear you through your microphone.": "이 게임이 마이크로 네 목소리를 듣고 싶어 해.",
+  "Use real AI": "실제 AI 사용",
 } satisfies LocaleCatalog;

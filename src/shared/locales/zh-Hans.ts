@@ -1332,7 +1332,7 @@ export default {
   "Fit every asset": "显示全部素材",
   "Fit everything": "显示全部",
   "Tidy up": "整理",
-  "Genex is drawing {title}": "Genex 正在画 {title}",
+  "Genex is drawing": "Genex 正在画",
   "{title} · next": "{title} · 接下来",
   "{count, plural, one {# new pick} other {# new picks}}": "{count, plural, other {# 个新选择}}",
   "Use this": "用这个",
@@ -3375,12 +3375,18 @@ export default {
   "Stop your builds and replies first, then move.": "请先停止你的构建和回复，再进行移动。",
   Stopped: "已停止",
   "Stopped adding the Luau checks. Nothing was kept.": "已停止添加 Luau 检查。未保留任何内容。",
+  "Stopped before it started — nothing was done. Send a message to go on.":
+    "开始前已停止，什么都没做。发送消息即可继续。",
+  "Stopped before the build started — nothing was built.": "构建开始前已停止，没有制作任何内容。",
   "Stopped getting Roblox Studio.": "已停止获取 Roblox Studio。",
   "Stopped getting Roblox Studio. Anything Roblox's installer already put on this computer stays.":
     "已停止获取 Roblox Studio。Roblox 安装程序已经放到这台电脑上的内容会保留。",
   "Stopped play": "已停止试玩",
+  "Stopped waiting. Send a message to go on once it's ready.": "已停止等待。准备好后发送消息即可继续。",
   "Stopped.": "已停止。",
   "Stopped. Everything built so far is kept.": "已停止。目前做好的内容都已保留。",
+  "Stopped. Finished edits are preserved; send a message to continue.":
+    "已停止。已完成的修改都已保留，发送消息即可继续。",
   "Stopped. What it built is in your game now.": "已停止。做好的内容已进入你的游戏。",
   "Stopped. What it built is kept in your project.": "已停止。做好的内容保留在你的项目中。",
   "Stopped. Your game is as you left it.": "已停止。你的游戏保持原样。",
@@ -6106,4 +6112,26 @@ export default {
   "Sees images": "可识图",
   "Step {n} of {total} · {name}": "第 {n} 步，共 {total} 步 · {name}",
   "Version {version} is in your game": "版本 {version} 已加入你的游戏",
+  "Add {cap} more": "再加 {cap}",
+  Allow: "允许",
+  "Genex's real models are switched off right now. Practice answers go on.":
+    "Genex 的真实模型现在已关闭。练习回答会继续。",
+  "Most credits this play session may spend": "这次游戏最多可用的积分",
+  "Practice answers (free, made up)": "练习回答（免费、编的）",
+  "Practice answers could not start: {error}": "练习回答没能启动：{error}",
+  "Real AI is billed to this game's draft on Genex, and it has none yet. Ask the chat to publish a draft, then try again. Practice answers go on.":
+    "真实 AI 会计费到这个游戏在 Genex 上的草稿，但它还没有草稿。让聊天发布一个草稿，然后再试一次。练习回答会继续。",
+  "Real AI is not available in this test profile. Practice answers go on.":
+    "这个测试配置里不能用真实 AI。练习回答会继续。",
+  "Real AI needs you signed in to Genex. Sign in from Settings, then try again. Practice answers go on.":
+    "真实 AI 需要你登录 Genex。在设置里登录，然后再试一次。练习回答会继续。",
+  "Real AI stopped. Practice answers go on.": "真实 AI 已停止。练习回答会继续。",
+  "Real AI · {spent} of {cap} credits": "真实 AI · {spent} / {cap} 积分",
+  "Real models answer in this preview, paid from your Genex credits: at most {cap} credits ({dollars}) for this play session.":
+    "这个预览里由真实模型回答，用你的 Genex 积分付费：这次游戏最多 {cap} 积分（{dollars}）。",
+  Start: "开始",
+  "Starting real AI…": "正在启动真实 AI…",
+  "The cap is used up": "额度用完了",
+  "This game wants to hear you through your microphone.": "这个游戏想通过麦克风听你说话。",
+  "Use real AI": "使用真实 AI",
 } satisfies LocaleCatalog;

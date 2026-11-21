@@ -1426,7 +1426,7 @@ export default {
   "Fit every asset": "Показать все ассеты",
   "Fit everything": "Вписать всё",
   "Tidy up": "Навести порядок",
-  "Genex is drawing {title}": "Genex рисует: {title}",
+  "Genex is drawing": "Genex рисует",
   "{title} · next": "{title} · дальше",
   "{count, plural, one {# new pick} other {# new picks}}":
     "{count, plural, one {# новый выбор} few {# новых выбора} many {# новых выборов} other {# нового выбора}}",
@@ -3548,12 +3548,19 @@ export default {
   "Stop your builds and replies first, then move.": "Сначала останови сборки и ответы, потом переноси.",
   Stopped: "Остановлено",
   "Stopped adding the Luau checks. Nothing was kept.": "Добавление проверок Luau остановлено. Ничего не сохранено.",
+  "Stopped before it started — nothing was done. Send a message to go on.":
+    "Остановлено до начала — ничего не сделано. Напиши сообщение, чтобы продолжить.",
+  "Stopped before the build started — nothing was built.": "Остановлено до начала сборки — ничего не собрано.",
   "Stopped getting Roblox Studio.": "Установка Roblox Studio остановлена.",
   "Stopped getting Roblox Studio. Anything Roblox's installer already put on this computer stays.":
     "Установка Roblox Studio остановлена. Всё, что установщик Roblox уже поставил на этот компьютер, останется.",
   "Stopped play": "Игра остановлена",
+  "Stopped waiting. Send a message to go on once it's ready.":
+    "Ожидание остановлено. Напиши сообщение, когда всё будет готово, чтобы продолжить.",
   "Stopped.": "Остановлено.",
   "Stopped. Everything built so far is kept.": "Остановлено. Всё, что успели собрать, сохранено.",
+  "Stopped. Finished edits are preserved; send a message to continue.":
+    "Остановлено. Готовые правки сохранены — напиши сообщение, чтобы продолжить.",
   "Stopped. What it built is in your game now.": "Остановлено. Всё собранное уже в игре.",
   "Stopped. What it built is kept in your project.": "Остановлено. Всё собранное сохранено в твоём проекте.",
   "Stopped. Your game is as you left it.": "Остановлено. Игра осталась как была.",
@@ -6516,4 +6523,26 @@ export default {
   "Sees images": "Распознает изображения",
   "Step {n} of {total} · {name}": "Шаг {n} из {total} · {name}",
   "Version {version} is in your game": "Версия {version} уже в игре",
+  "Add {cap} more": "Добавить ещё {cap}",
+  Allow: "Разрешить",
+  "Genex's real models are switched off right now. Practice answers go on.":
+    "Настоящие модели Genex сейчас выключены. Пробные ответы продолжаются.",
+  "Most credits this play session may spend": "Сколько кредитов можно потратить за эту игровую сессию",
+  "Practice answers (free, made up)": "Пробные ответы (бесплатно, выдуманные)",
+  "Practice answers could not start: {error}": "Пробные ответы не запустились: {error}",
+  "Real AI is billed to this game's draft on Genex, and it has none yet. Ask the chat to publish a draft, then try again. Practice answers go on.":
+    "Настоящий ИИ оплачивается с черновика этой игры на Genex, а его пока нет. Попроси чат опубликовать черновик и попробуй снова. Пробные ответы продолжаются.",
+  "Real AI is not available in this test profile. Practice answers go on.":
+    "Настоящий ИИ недоступен в этом тестовом профиле. Пробные ответы продолжаются.",
+  "Real AI needs you signed in to Genex. Sign in from Settings, then try again. Practice answers go on.":
+    "Для настоящего ИИ нужно войти в Genex. Войди в настройках и попробуй снова. Пробные ответы продолжаются.",
+  "Real AI stopped. Practice answers go on.": "Настоящий ИИ остановился. Пробные ответы продолжаются.",
+  "Real AI · {spent} of {cap} credits": "Настоящий ИИ · {spent} из {cap} кредитов",
+  "Real models answer in this preview, paid from your Genex credits: at most {cap} credits ({dollars}) for this play session.":
+    "В этом превью отвечают настоящие модели, за твои кредиты Genex: не больше {cap} кредитов ({dollars}) за эту игровую сессию.",
+  Start: "Начать",
+  "Starting real AI…": "Запускаем настоящий ИИ…",
+  "The cap is used up": "Лимит исчерпан",
+  "This game wants to hear you through your microphone.": "Эта игра хочет слышать тебя через микрофон.",
+  "Use real AI": "Включить настоящий ИИ",
 } satisfies LocaleCatalog;

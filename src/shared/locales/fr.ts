@@ -1470,7 +1470,7 @@ export default {
   "Fit every asset": "Afficher toutes les ressources",
   "Fit everything": "Tout ajuster",
   "Tidy up": "Ranger",
-  "Genex is drawing {title}": "Genex dessine {title}",
+  "Genex is drawing": "Genex dessine",
   "{title} · next": "{title} · ensuite",
   "{count, plural, one {# new pick} other {# new picks}}":
     "{count, plural, one {# nouveau choix} other {# nouveaux choix}}",
@@ -3628,12 +3628,19 @@ export default {
   "Stop your builds and replies first, then move.": "Arrête d’abord tes builds et réponses, puis déplace.",
   Stopped: "Arrêté",
   "Stopped adding the Luau checks. Nothing was kept.": "Ajout des vérifications Luau arrêté. Rien n’a été gardé.",
+  "Stopped before it started — nothing was done. Send a message to go on.":
+    "Arrêté avant de commencer : rien n’a été fait. Envoie un message pour continuer.",
+  "Stopped before the build started — nothing was built.": "Arrêté avant le début du build : rien n’a été créé.",
   "Stopped getting Roblox Studio.": "Installation de Roblox Studio arrêtée.",
   "Stopped getting Roblox Studio. Anything Roblox's installer already put on this computer stays.":
     "Installation de Roblox Studio arrêtée. Ce que l’installateur de Roblox a déjà mis sur cet ordinateur reste.",
   "Stopped play": "Jeu arrêté",
+  "Stopped waiting. Send a message to go on once it's ready.":
+    "Attente arrêtée. Envoie un message pour continuer quand tout est prêt.",
   "Stopped.": "Arrêté.",
   "Stopped. Everything built so far is kept.": "Arrêté. Tout ce qui a été créé jusqu’ici est gardé.",
+  "Stopped. Finished edits are preserved; send a message to continue.":
+    "Arrêté. Les modifications terminées sont gardées ; envoie un message pour continuer.",
   "Stopped. What it built is in your game now.": "Arrêté. Ce qui a été créé est maintenant dans ton jeu.",
   "Stopped. What it built is kept in your project.": "Arrêté. Ce qui a été créé est gardé dans ton projet.",
   "Stopped. Your game is as you left it.": "Arrêté. Ton jeu est tel que tu l’as laissé.",
@@ -6590,4 +6597,26 @@ export default {
   "Sees images": "Voit les images",
   "Step {n} of {total} · {name}": "Étape {n} sur {total} · {name}",
   "Version {version} is in your game": "La version {version} est dans ton jeu",
+  "Add {cap} more": "Ajouter {cap} de plus",
+  Allow: "Autoriser",
+  "Genex's real models are switched off right now. Practice answers go on.":
+    "Les vrais modèles de Genex sont coupés pour l'instant. Les réponses d'entraînement continuent.",
+  "Most credits this play session may spend": "Crédits maximum pour cette session de jeu",
+  "Practice answers (free, made up)": "Réponses d'entraînement (gratuites, inventées)",
+  "Practice answers could not start: {error}": "Les réponses d'entraînement n'ont pas pu démarrer : {error}",
+  "Real AI is billed to this game's draft on Genex, and it has none yet. Ask the chat to publish a draft, then try again. Practice answers go on.":
+    "La vraie IA est facturée au brouillon de ce jeu sur Genex, et il n'en a pas encore. Demande au chat de publier un brouillon, puis réessaie. Les réponses d'entraînement continuent.",
+  "Real AI is not available in this test profile. Practice answers go on.":
+    "La vraie IA n'est pas disponible dans ce profil de test. Les réponses d'entraînement continuent.",
+  "Real AI needs you signed in to Genex. Sign in from Settings, then try again. Practice answers go on.":
+    "La vraie IA demande que tu sois connecté à Genex. Connecte-toi dans les Réglages, puis réessaie. Les réponses d'entraînement continuent.",
+  "Real AI stopped. Practice answers go on.": "La vraie IA s'est arrêtée. Les réponses d'entraînement continuent.",
+  "Real AI · {spent} of {cap} credits": "Vraie IA · {spent} sur {cap} crédits",
+  "Real models answer in this preview, paid from your Genex credits: at most {cap} credits ({dollars}) for this play session.":
+    "De vrais modèles répondent dans cet aperçu, payés avec tes crédits Genex : au plus {cap} crédits ({dollars}) pour cette session de jeu.",
+  Start: "Démarrer",
+  "Starting real AI…": "Démarrage de la vraie IA…",
+  "The cap is used up": "Le plafond est atteint",
+  "This game wants to hear you through your microphone.": "Ce jeu veut t'entendre avec ton micro.",
+  "Use real AI": "Utiliser la vraie IA",
 } satisfies LocaleCatalog;

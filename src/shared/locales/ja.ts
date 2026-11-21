@@ -1414,7 +1414,7 @@ export default {
   "Fit every asset": "すべてのアセットを表示",
   "Fit everything": "全体を表示",
   "Tidy up": "整える",
-  "Genex is drawing {title}": "Genex が {title} を描いています",
+  "Genex is drawing": "Genex が描いています",
   "{title} · next": "{title} · 次",
   "{count, plural, one {# new pick} other {# new picks}}": "{count, plural, other {新しい選択 #件}}",
   "Use this": "これにする",
@@ -3566,12 +3566,19 @@ export default {
   "Stop your builds and replies first, then move.": "先にビルドと返信を止めてから移動してください。",
   Stopped: "停止",
   "Stopped adding the Luau checks. Nothing was kept.": "Luauチェックの追加を停止しました。何も保存されていません。",
+  "Stopped before it started — nothing was done. Send a message to go on.":
+    "始まる前に停止しました。何も変更されていません。続行するにはメッセージを送信してください。",
+  "Stopped before the build started — nothing was built.": "ビルドが始まる前に停止しました。何もつくられていません。",
   "Stopped getting Roblox Studio.": "Roblox Studioの入手を止めました。",
   "Stopped getting Roblox Studio. Anything Roblox's installer already put on this computer stays.":
     "Roblox Studioの入手を止めました。Robloxのインストーラーがすでにこのコンピューターに入れたものは残ります。",
   "Stopped play": "プレイを停止しました",
+  "Stopped waiting. Send a message to go on once it's ready.":
+    "待機を停止しました。準備ができたらメッセージを送信して続けてください。",
   "Stopped.": "停止しました。",
   "Stopped. Everything built so far is kept.": "停止しました。ここまでつくったものはすべて残っています。",
+  "Stopped. Finished edits are preserved; send a message to continue.":
+    "停止しました。編集内容は保存されています。続行するにはメッセージを送信してください。",
   "Stopped. What it built is in your game now.": "停止しました。つくったものはゲームに反映されています。",
   "Stopped. What it built is kept in your project.": "停止しました。つくったものはプロジェクトに残っています。",
   "Stopped. Your game is as you left it.": "停止しました。ゲームは元のままです。",
@@ -6481,4 +6488,26 @@ export default {
   "Sees images": "画像認識",
   "Step {n} of {total} · {name}": "ステップ {n}/{total} · {name}",
   "Version {version} is in your game": "バージョン {version} がゲームに入りました",
+  "Add {cap} more": "{cap} 追加",
+  Allow: "許可",
+  "Genex's real models are switched off right now. Practice answers go on.":
+    "Genex の本物のモデルは今オフです。練習用の回答は続きます。",
+  "Most credits this play session may spend": "このプレイで使えるクレジットの上限",
+  "Practice answers (free, made up)": "練習用の回答（無料・作り物）",
+  "Practice answers could not start: {error}": "練習用の回答を開始できませんでした: {error}",
+  "Real AI is billed to this game's draft on Genex, and it has none yet. Ask the chat to publish a draft, then try again. Practice answers go on.":
+    "本物の AI はこのゲームの Genex の下書きに請求されますが、まだ下書きがありません。チャットに下書きの公開を頼んでから、もう一度試してね。練習用の回答は続きます。",
+  "Real AI is not available in this test profile. Practice answers go on.":
+    "このテスト用プロフィールでは本物の AI は使えません。練習用の回答は続きます。",
+  "Real AI needs you signed in to Genex. Sign in from Settings, then try again. Practice answers go on.":
+    "本物の AI を使うには Genex にサインインしてね。設定からサインインして、もう一度試してね。練習用の回答は続きます。",
+  "Real AI stopped. Practice answers go on.": "本物の AI が止まりました。練習用の回答は続きます。",
+  "Real AI · {spent} of {cap} credits": "本物の AI · {cap} 中 {spent} クレジット",
+  "Real models answer in this preview, paid from your Genex credits: at most {cap} credits ({dollars}) for this play session.":
+    "このプレビューでは本物のモデルが答え、Genex のクレジットから支払われます: このプレイで最大 {cap} クレジット ({dollars})。",
+  Start: "開始",
+  "Starting real AI…": "本物の AI を起動中…",
+  "The cap is used up": "上限に達しました",
+  "This game wants to hear you through your microphone.": "このゲームはマイクであなたの声を聞きたがっています。",
+  "Use real AI": "本物の AI を使う",
 } satisfies LocaleCatalog;
