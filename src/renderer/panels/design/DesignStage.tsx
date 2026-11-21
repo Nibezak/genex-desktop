@@ -1060,6 +1060,8 @@ function PictureSheet({
             onNatural(item.file, naturalOf(event.currentTarget));
             onLoaded(item.file, next);
           }}
+          // A new file that can never be read is what the board holds now: shown, it is the empty tile.
+          onError={() => onLoaded(item.file, next)}
         />
       ) : null}
     </>

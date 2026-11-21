@@ -4,7 +4,7 @@
  */
 import type { DesignMarks, DesignNote, DesignPick, DesignPlace } from "../../../shared/design-marks.ts";
 import type { CanvasView } from "../../canvas-view.ts";
-import { pictureSize } from "./design-model.ts";
+import { PICTURE_MAX_WIDTH, pictureSize } from "./design-model.ts";
 
 /** The room between two pictures of one drop, side by side: the canvas's gap between artboards. */
 const DROP_GAP = 120;
@@ -20,12 +20,13 @@ export function canvasPoint(
 
 /**
  * Where a picture dropped at `point` hangs: its middle under the pointer (at the size a picture has
- * before it loads), each further picture of the same drop beside the one before, never over it.
+ * before it loads), each further picture of the same drop beside the one before, a widest picture's
+ * width on, so none lands on another whatever shape it turns out to have.
  */
 export function dropPlace(point: DesignPlace, index: number): DesignPlace {
   const size = pictureSize(undefined);
   return {
-    x: Math.round(point.x - size.width / 2 + index * (size.width + DROP_GAP)),
+    x: Math.round(point.x - size.width / 2 + index * (PICTURE_MAX_WIDTH + DROP_GAP)),
     y: Math.round(point.y - size.height / 2),
   };
 }

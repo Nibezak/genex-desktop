@@ -7,10 +7,17 @@ import fs from "node:fs";
 import path from "node:path";
 import { describe, it } from "node:test";
 import { callProjectTool } from "../../src/main/core/project-tools.ts";
-import { askForPage, makingOn, noteMaking, takeAskedPage } from "../../src/renderer/panels/design/design-asks.ts";
+import {
+  askForPage,
+  forgetMaking,
+  makingOn,
+  noteMaking,
+  takeAskedPage,
+} from "../../src/renderer/panels/design/design-asks.ts";
 import {
   MAKING_FRESH_MS,
   MAKING_IDLE_MS,
+  makingEnded,
   makingNow,
   Redraw,
   redrawOf,
@@ -236,6 +243,23 @@ describe("artboards being made, on the canvas", () => {
     assert.deepEqual(makingNow(declared, [], 1000 + MAKING_IDLE_MS - 1, false), [fires], "the turn may not show yet");
     assert.deepEqual(makingNow(declared, [], 1000 + MAKING_IDLE_MS + 1, false), [], "the turn ended");
     assert.deepEqual(makingNow(declared, [], 1000 + MAKING_IDLE_MS + 1, true), [fires], "still working");
+  });
+
+  it("forgets a list that ended, so a later turn of the game does not bring it back", () => {
+    noteMaking("moths", [fires], 1000);
+    const said = makingOn("moths");
+    assert.equal(makingEnded(said, 1000 + MAKING_IDLE_MS + 1, true), false, "still being worked on");
+    assert.equal(makingEnded(said, 1000 + MAKING_IDLE_MS + 1, false), true, "the turn stopped");
+    forgetMaking("moths", 1000);
+    assert.equal(makingOn("moths"), null);
+    assert.deepEqual(
+      makingNow(makingOn("moths"), [], 1000 + MAKING_IDLE_MS + 60_000, true),
+      [],
+      "a new turn shows none",
+    );
+    noteMaking("moths", [wyrm], 5000);
+    forgetMaking("moths", 1000);
+    assert.deepEqual(makingOn("moths"), { files: [wyrm], at: 5000 }, "a newer list is not the one forgotten");
   });
 
   it("draws the first of what is still to come and keeps the rest waiting", () => {

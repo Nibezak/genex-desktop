@@ -9,10 +9,18 @@ import { type JSX, useEffect, useMemo, useState } from "react";
 import type { DesignItem, DesignSpot } from "../../../shared/design-board.ts";
 import { SECOND_MS } from "../../../shared/duration.ts";
 import { BOARD_WORDS } from "./board-words.ts";
-import { DESIGN_MAKING_EVENT, makingOn } from "./design-asks.ts";
+import { DESIGN_MAKING_EVENT, forgetMaking, makingOn } from "./design-asks.ts";
 import { useLibrary, useThreads } from "../../state/hooks.ts";
 import { projectWorking } from "../../state/threads.ts";
-import { CAPTION_HEIGHT, MAKING_IDLE_MS, makingNow, UNZOOMED, type WallFrame, zoomedWidth } from "./design-model.ts";
+import {
+  CAPTION_HEIGHT,
+  MAKING_IDLE_MS,
+  makingEnded,
+  makingNow,
+  UNZOOMED,
+  type WallFrame,
+  zoomedWidth,
+} from "./design-model.ts";
 
 /** The ring the agent draws around a spot, across, in screen pixels. */
 const RING_PX = 40;
@@ -161,6 +169,12 @@ export function useMaking(project: string, items: readonly DesignItem[]): string
     const later = setTimeout(() => setTick((count) => count + 1), MAKING_IDLE_MS);
     return () => clearTimeout(later);
   }, [working]);
+  // A list that ended is forgotten, so the game's next turn does not show it again.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `tick` reads the agent's newest list and the clock again
+  useEffect(() => {
+    const said = makingOn(project);
+    if (said && makingEnded(said, Date.now(), working)) forgetMaking(project, said.at);
+  }, [project, tick, working]);
   // biome-ignore lint/correctness/useExhaustiveDependencies: `tick` reads the agent's newest list and the clock again
   return useMemo(() => makingNow(makingOn(project), items, Date.now(), working), [project, items, tick, working]);
 }

@@ -133,9 +133,10 @@ describe("what the person does on the canvas, as changes to the marks", () => {
   it("hangs a dropped picture with its middle under the pointer, each further one beside it, not over it", () => {
     const first = dropPlace({ x: 2000, y: 1000 }, 0);
     const second = dropPlace({ x: 2000, y: 1000 }, 1);
-    const wide = pictureSize(undefined).width;
+    // The widest a picture can hang, whatever shape it turns out to have once it loads.
+    const widest = pictureSize({ width: 100, height: 1 }).width;
     assert.ok(first.x < 2000 && first.y < 1000, "its corner is up and left of the pointer");
-    assert.ok(second.x > first.x + wide, "the next stands clear of it");
+    assert.ok(second.x > first.x + widest, "the next stands clear of it, however wide it is");
     assert.equal(second.y, first.y, "on the same line");
   });
 

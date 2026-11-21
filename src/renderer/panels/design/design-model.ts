@@ -28,7 +28,8 @@ const ROW_MAX_WIDTH = 5400;
 /** A picture's height on the canvas, large enough to be seen and felt beside a page, and the widths it keeps between. */
 const PICTURE_HEIGHT = 760;
 const PICTURE_MIN_WIDTH = 480;
-const PICTURE_MAX_WIDTH = 1800;
+/** The widest a picture hangs, however wide its own shape. */
+export const PICTURE_MAX_WIDTH = 1800;
 /** A picture's shape before it has loaded. */
 const PICTURE_ASPECT = 16 / 9;
 /** A 3D model's tile: a square as tall as a picture. */
@@ -327,13 +328,22 @@ export function makingNow(
   now: number,
   working = true,
 ): string[] {
-  if (!said || now - said.at > MAKING_FRESH_MS) return [];
-  if (!working && now - said.at > MAKING_IDLE_MS) return [];
+  if (!said || makingEnded(said, now, working)) return [];
   const changedAt = new Map(held.map((item) => [item.file, item.modifiedAt]));
   return said.files.filter((file) => {
     const at = changedAt.get(file);
     return at === undefined || at < said.at;
   });
+}
+
+/**
+ * Whether what an agent said it is making is over: gone stale, or said a moment before no chat of
+ * the game was working any more. An ended list is forgotten, so a later turn does not revive it.
+ */
+export function makingEnded(said: { at: number } | null, now: number, working: boolean): boolean {
+  if (!said) return true;
+  const stale = now - said.at > MAKING_FRESH_MS;
+  return stale || (!working && now - said.at > MAKING_IDLE_MS);
 }
 
 /** Where an artboard of the board stands in what the agent is making: drawn now, waiting its turn, or neither. */
