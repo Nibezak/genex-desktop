@@ -507,8 +507,10 @@ this draft has no raw counterpart until the owner decides one.
 [ ] KEY: a player who declines the approval gets her written lines, and the game stays playable
     <- "get by on lines you wrote for her"
 [ ] whenever her written lines play instead of a model, a small visible label says so and why
-[ ] the agent's final message says in one line that her AI answers in the published draft on
-    genex.games, signed in, not in Studio's preview, and gives the draft's link
+[ ] the agent's final message says in one line that Live answers with practice answers until
+    the person presses Use real AI there (a published draft, their credits, up to their cap), and
+    gives the draft's link when there is one
+[ ] a practice answer (`source: 'practice'`) shows as her line in the preview, never as a refusal
 [ ] the model's answer is checked against the expected shape before the game uses it: a
     malformed or off-shape answer never hands over the lamp
 ```

@@ -11,7 +11,8 @@ this preface, this preface wins.
   `npx genex init --convert` does not apply here, and the card's steps below leave it out.
 - Then read the full procedure with `genex__skill {"name":"genex-llm-in-games"}`. Its preface says
   how a game made here ships with the calls on (provisional ceilings until a bench runs), and that
-  Studio's preview never calls a model (`local_test_unsupported`): only the published draft does,
-  on genex.games, signed in. The game labels its written lines whenever they play instead.
+  Studio's preview answers every call with practice answers (`source: 'practice'`, made up, free),
+  which the person can switch to real models in Live. The game labels its written lines whenever
+  they play instead.
 - Other commands map onto Studio tools as the `genex` skill describes
   (`genex__skill {"name":"genex"}`).
