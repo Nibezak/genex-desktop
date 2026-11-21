@@ -29,19 +29,68 @@ disagrees with this preface, this preface wins.
   publish a draft with `genex__publish {"operation":"draft"}` first. `init --convert` does not
   apply in Studio.
 
+## The model calls ship on
+
+- A game that calls a model ships with the calls enabled. No switch, flag or setting leaves them
+  off by default; the written lines are what the game plays when a call cannot answer.
+- The bench is not a gate. Until a bench has run for a prompt, the ceilings are provisional:
+  a call starts at `maxCredits` 4, and on a budget `perCallMaxCredits` 16 and `perCallEstimateCredits` 1
+  (so a period's credits are its calls × 1). Each sits in a named constant whose comment says it is
+  provisional, until `llm bench` measures it. This replaces the card's rule that only a benched
+  figure is declared. When a bench runs, its figures replace the provisional ones.
+- A ceiling also bounds how long an answer may be, so a provisional one needs short answers: the
+  prompt states the answer's length, every string in the schema has a `maxLength`, and the call
+  passes `maxOutputTokens`. Each ceiling is one named constant, so one edit raises it.
+- A call that ends `provider_token_limit` was cut off because its ceiling is too low for that model:
+  the game plays the written line with its label, and the next call of that prompt declares twice
+  the `maxCredits`, up to the budget's `perCallMaxCredits` (16), for the rest of the session. That is
+  why the provisional budget allows 16 a call while a call starts at 4. A bench settles the figures.
+- Ask for the bench once. When its `genex__cli-paid` card is not approved, declined or left
+  unanswered, ask no more and keep the feature on with the provisional ceilings; the final message
+  says the ceilings are provisional and that a bench would replace them.
+
+## Where the model answers
+
+- Studio's preview runs the game in local test mode: every model call there resolves
+  `{ status: 'failed', error: 'local_test_unsupported' }` before anyone is asked, so the preview
+  always plays the written lines. Only the published draft calls a model, opened on genex.games
+  signed in as the game's owner (anyone else gets `player_wallet_required` on a test build).
+- The draft comes from `genex__publish {"operation":"draft"}`, which the person approves. The final
+  message for a game that calls a model says in one line that its AI answers in the draft on
+  genex.games, signed in, and not in Studio's preview, and gives the draft's link.
+
+## When the written lines play, the game says so
+
+Whenever the game plays its written lines instead of a model (the preview's
+`local_test_unsupported`, the Genex app's `native_unsupported`, a guest, a declined or ended budget,
+a refusal), it shows a small visible label saying so and why, for example "Written lines: the AI
+answers on genex.games, not in this preview" or "Written lines: no AI budget". Never an error, and
+never a silent swap that reads as a broken AI.
+
+## A game that listens
+
+- A game that hears the player (speech recognition, `getUserMedia({ audio })`, voice chat)
+  declares the microphone for its Genex page in its `package.json`:
+  `"genex": { "capabilities": ["microphone"] }`. An undeclared build is refused the microphone on
+  its Genex page without the player being asked. A draft or gallery publish prints what the build is
+  given (`On its Genex page this build is given: microphone.`); the rules are in
+  `genex__skill {"name":"genex-threejs-embed-auth","file":"skills/genex-threejs-embed-auth/references/shells.md"}`.
+- Browser speech recognition (`SpeechRecognition`, `webkitSpeechRecognition`) exists in Chrome, Edge
+  and Safari, not Firefox. Studio's preview and the Genex app never grant the microphone. So a game
+  that listens also takes typed input, shown whenever recognition is missing or refused.
+
 ## Not in Studio yet
 
-The card below is from Genex CLI 1.44.0, ahead of the CLI Studio runs. These parts of that release
-are left out of it because Studio cannot run them yet:
+These parts of Genex CLI 1.44.0 are left out of the card below because Studio cannot run them yet:
 
 - `llm bench` takes no `system` or `messages` option here. Put the system text and a typical
   history into the bench prompt itself, so the measured size is the real call's.
 - Practice mode (`llm practice`), creator-paid budgets (`llm sponsor`, `sponsored: true`) and
-  `llm usage` are commands of that CLI. `features.sponsor` may read true on a stand; a game made
-  here still asks the player for the budget.
+  `llm usage` are commands Studio does not run. `features.sponsor` may read true on a stand; a game
+  made here still asks the player for the budget.
 - Model calls from a multiplayer server room (`shareWithRooms`, `lendSpendGrantToRoom`,
-  `ctx.models`) need a newer multiplayer SDK than Studio ships. `features.roomCalls` may read true
-  on a stand; a game made here calls the model from the player's page.
+  `ctx.models`) are not built here. `features.roomCalls` may read true on a stand; a game made here
+  calls the model from the player's page.
 - Unity, Godot, Rust and Unreal games have no model-call binding in Studio.
 
 `system`, `messages`, the controls and `features` work: Studio ships the SDK that has them.
@@ -57,7 +106,7 @@ player text) is `play-time-models` in the `genex-recommendations` plugin.
 
 Other commands map onto Studio tools as the `genex` skill describes (`genex__skill {"name":"genex"}`).
 
-<!-- upstream genex-demo@6c79d69ed/apps/cli/templates/skills/genex-llm-in-games/SKILL.md v1.44.0 sha256 38fddf6a4244f70d0b879ca532c5da9b7b5a1dbc6d655224e65bd118b212ebb7 -->
+<!-- upstream @genex-ai/cli-demo/templates/skills/genex-llm-in-games/SKILL.md v1.44.0 sha256 f89b7cd7b56dc77c4500dce71a4a021e403df07b24ee05714ac51e79aa184e41 -->
 ---
 name: genex-llm-in-games
 description: Call a language model from a running game — NPCs that answer in their own words, AI opponents, teammates and agents that plan and act, faction leaders, a narrator or game master, a judge of what the player typed, quests written per save. The PLAYER pays and approves on a Genex surface. Covers one-time calls and standing budgets, benchmarking the ceiling, streaming, the judge and every refusal.
@@ -256,7 +305,7 @@ sample really cost and was charged, then the numbers to declare:
   average rounded up to a whole credit: the honest figures a budget's disclosure
   is built on.
 
-Declare the printed numbers. Never guess them, never work them out from a
+Declare the printed numbers once a bench has run. Never work them out from a
 vendor's price list, never add a margin of your own. Full procedure — reading
 p50/p95, turning the loop into disclosure numbers, re-benchmarking after a
 prompt change — is in [references/pricing.md](references/pricing.md).
@@ -437,8 +486,7 @@ their spend, and a Stop; a Stop pressed there reaches the game as `grant_stopped
   on your machine, never something a shipped build does.
 - **Never hand-roll fetch to the runtime API** — the SDK owns the approval
   handshake, and a hand-rolled call cannot obtain one.
-- **Never hardcode a ceiling the bench did not print, a model id, a stand URL,
-  or a margin.**
+- **Never hardcode a model id, a stand URL or a margin.**
 - **Never let the model be an authority over money, items or rewards**
   (`$genex-monetization` owns what may move a wallet).
 
@@ -450,7 +498,7 @@ These are source contracts, not a claim that every stand runs this lane —
 - [ ] `npx genex llm models` says the lane is live
 - [ ] Model ids come from `getGenerationModels()`, never from source
 - [ ] The picker offers the featured set, labelled with the server's own `label`
-- [ ] `maxCredits` — and a budget's `perCallMaxCredits` / `perCallEstimateCredits` — are the figures `npx genex llm bench` printed, verbatim — never a charged number
+- [ ] `maxCredits` — and a budget's `perCallMaxCredits` / `perCallEstimateCredits` — are the figures `npx genex llm bench` printed, verbatim, or the provisional ceilings — never a charged number
 - [ ] No coin spelling (`estimateCoins`, `perCallMaxCoins`, `estimatedCoinsPerPeriod`) in new code
 - [ ] The schema uses only the accepted dialect (no `$ref`, `pattern`, `format`, `anyOf`, `default`)
 - [ ] A bench refused as `generation_limit` was answered with `npx genex llm status`, never a retry

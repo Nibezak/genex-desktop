@@ -9,6 +9,9 @@ this preface, this preface wins.
 - Only a game hosted on Genex can call a model. In Studio a game becomes one when you publish its
   first draft with `genex__publish {"operation":"draft"}` (the user approves it); Genex's own
   `npx genex init --convert` does not apply here, and the card's steps below leave it out.
-- Then read the full procedure with `genex__skill {"name":"genex-llm-in-games"}`.
+- Then read the full procedure with `genex__skill {"name":"genex-llm-in-games"}`. Its preface says
+  how a game made here ships with the calls on (provisional ceilings until a bench runs), and that
+  Studio's preview never calls a model (`local_test_unsupported`): only the published draft does,
+  on genex.games, signed in. The game labels its written lines whenever they play instead.
 - Other commands map onto Studio tools as the `genex` skill describes
   (`genex__skill {"name":"genex"}`).
