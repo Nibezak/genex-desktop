@@ -41,7 +41,6 @@ const VERSION_TIMEOUT_MS = 30_000;
 /** What the scripted command writes in the session's folder. */
 const PROOF = { file: "opencode-proof.txt", text: "ok" } as const;
 const PROBE_SOURCE = `import { writeFileSync } from "node:fs";\nwriteFileSync(${JSON.stringify(PROOF.file)}, ${JSON.stringify(PROOF.text)});\nconsole.log("probe ran");\n`;
-/** The folders OpenCode keeps its config, sign-ins, logs and catalog in: the test's own. */
 /** How many ports below a free one the made-up fenced range spans. */
 const FENCED_PORTS = 5;
 /** OpenCode's own name for its shell tool. */
@@ -68,6 +67,7 @@ const providerConfig = (baseURL: string): string =>
     },
   });
 
+/** The folders OpenCode keeps its config, sign-ins, logs and catalog in: the test's own. */
 const OWN_FOLDERS = ["XDG_CONFIG_HOME", "XDG_DATA_HOME", "XDG_STATE_HOME", "XDG_CACHE_HOME"] as const;
 
 /** The real `opencode` binary. */
@@ -122,6 +122,7 @@ describe("OpenCode 2.x with the real CLI", { skip: !LIVE && "set STUDIO_OPENCODE
       const sandbox = await ProcessSandbox.create({ ...invocation.sandbox, writableRoots });
       const session = {
         spawnLongLived: (request: Parameters<ProcessSandbox["spawnLongLived"]>[0]) => sandbox.spawnLongLived(request),
+        enabled: sandbox.enabled,
         loopbackPorts: () => fenced ?? sandbox.loopbackPorts(),
       };
       try {

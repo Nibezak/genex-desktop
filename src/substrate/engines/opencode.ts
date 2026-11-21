@@ -13,7 +13,6 @@
  * resumed by its id (`--session`). Studio tools arrive through the same bridge Codex uses.
  */
 import { execFile } from "node:child_process";
-import { connect } from "node:net";
 import type { ChildProcess } from "node:child_process";
 import { randomBytes } from "node:crypto";
 import { mkdir, mkdtemp, realpath, rm } from "node:fs/promises";
@@ -92,8 +91,12 @@ const STANDALONE_FLAG = "--standalone";
 /** How long a session's own server may take to listen, and how often its port is tried. */
 const OWN_SERVER_READY_TIMEOUT_MS = 30 * SECOND_MS;
 const OWN_SERVER_POLL_MS = 100;
-/** How long one try of a session's server's port may take. */
-const OWN_SERVER_CONNECT_TIMEOUT_MS = SECOND_MS;
+/** How long one try of a session's server may take. */
+const OWN_SERVER_PROBE_TIMEOUT_MS = SECOND_MS;
+/** What a session's server is asked to tell it from another listener: an answer only its password gets. */
+const OWN_SERVER_PROBE_PATH = "/api/session";
+/** The ports this process's own session servers hold or are starting on. */
+const CLAIMED_PORTS = new Set<number>();
 /** How long a git probe for a worktree's metadata may take. */
 const GIT_PROBE_TIMEOUT_MS = 5 * SECOND_MS;
 /** How long a judge's one-shot answer may take before it is a timeout. */
@@ -1068,7 +1071,7 @@ async function* runOpenCode(invocation: OpenCodeInvocation): AsyncGenerator<Reco
 }
 
 /** What `openCodeEvents` asks of a sandbox. */
-type SessionSandbox = Pick<ProcessSandbox, "spawnLongLived" | "loopbackPorts">;
+type SessionSandbox = Pick<ProcessSandbox, "spawnLongLived" | "loopbackPorts" | "enabled">;
 /** A session as started: everything but the sandbox it is started in. */
 type SessionStart = Omit<OpenCodeInvocation, "sandbox">;
 
@@ -1084,7 +1087,9 @@ export async function* openCodeEvents(
   binary: string,
   invocation: SessionStart,
 ): AsyncGenerator<Record<string, unknown>> {
-  const range = invocation.argv.includes(STANDALONE_FLAG) ? sandbox.loopbackPorts() : null;
+  // Unboxed (Bypass), the run is the person's own and its loopback is not fenced.
+  const fenced = sandbox.enabled && invocation.argv.includes(STANDALONE_FLAG);
+  const range = fenced ? sandbox.loopbackPorts() : null;
   if (range === null) {
     yield* sessionEvents(sandbox, binary, invocation);
     return;
@@ -1094,6 +1099,7 @@ export async function* openCodeEvents(
     yield* sessionEvents(sandbox, binary, onOwnServer(invocation, server));
   } finally {
     await stopOwnServer(server.child);
+    CLAIMED_PORTS.delete(server.port);
   }
 }
 
@@ -1108,6 +1114,7 @@ async function stopOwnServer(child: ChildProcess): Promise<void> {
 /** A session's own server: its process, where it answers and the password it takes. */
 interface OwnServer {
   child: ChildProcess;
+  port: number;
   url: string;
   password: string;
 }
@@ -1123,9 +1130,10 @@ function onOwnServer(invocation: SessionStart, server: OwnServer): SessionStart 
 
 /**
  * `opencode serve` in the session's sandbox, folder and environment, on the highest free port of
- * `range` (the sandbox's proxies take it from the bottom), with a password made here. A server
- * that exits before it listens on a port another program took meanwhile lost a race: the next port
- * is tried. One that exits with its port still free failed to start, and its stderr says why.
+ * `range` (the sandbox's proxies take it from the bottom) that no other session of this process
+ * holds, with a password made here. A server that exits before it listens on a port another program
+ * took meanwhile lost a race: the next port is tried. One that exits with its port still free failed
+ * to start, and its stderr says why.
  */
 async function startOwnServer(
   sandbox: SessionSandbox,
@@ -1137,33 +1145,62 @@ async function startOwnServer(
   const [low, high] = range;
   for (let port = high; port >= low; port--) {
     invocation.signal.throwIfAborted();
-    if (!(await loopbackPortFree(port, LoopbackProtocol.Tcp))) continue;
-    const serve = [binary, "serve", "--hostname", LOOPBACK_HOST, "--port", String(port)];
-    const { child } = await sandbox.spawnLongLived({
-      command: serve.map(shellQuote).join(" "),
-      cwd: invocation.cwd,
-      env: { ...invocation.env, OPENCODE_PASSWORD: password },
-      label: `opencode-server:${path.basename(invocation.cwd)}`,
-      policy: { allowedDomains: invocation.domains },
-    });
-    // Its stdout is never read (a full pipe would stop it); stderr's tail explains a failed start.
-    child.stdout?.resume();
-    const said = stderrTail(child);
-    const listening = await ownServerListening(child, port, invocation.signal).catch(async (err: unknown) => {
-      await stopOwnServer(child);
+    if (CLAIMED_PORTS.has(port)) continue;
+    CLAIMED_PORTS.add(port);
+    const server = await serverOnPort(sandbox, binary, invocation, { port, password }).catch((err: unknown) => {
+      CLAIMED_PORTS.delete(port);
       throw err;
     });
-    if (listening) return { child, url: `http://${LOOPBACK_HOST}:${port}`, password };
-    if (await loopbackPortFree(port, LoopbackProtocol.Tcp)) throw await serverFailed(child, said);
+    if (server) return server;
+    CLAIMED_PORTS.delete(port);
   }
   throw new Error(MESSAGE.NoServerPort(range));
 }
 
 /**
- * Whether the server `child` came to listen on `port`: true once a connection opens, false when it
- * exited first. Stopped by the session's stop; a server silent past its deadline is an error.
+ * `opencode serve` on `port`: the server once it answers with its password; null when the port was
+ * not free or another listener took it first. A server that failed to start on a free port throws.
  */
-async function ownServerListening(child: ChildProcess, port: number, signal: AbortSignal): Promise<boolean> {
+async function serverOnPort(
+  sandbox: SessionSandbox,
+  binary: string,
+  invocation: SessionStart,
+  claim: { port: number; password: string },
+): Promise<OwnServer | null> {
+  const { port, password } = claim;
+  if (!(await loopbackPortFree(port, LoopbackProtocol.Tcp))) return null;
+  const serve = [binary, "serve", "--hostname", LOOPBACK_HOST, "--port", String(port)];
+  const { child } = await sandbox.spawnLongLived({
+    command: serve.map(shellQuote).join(" "),
+    cwd: invocation.cwd,
+    env: { ...invocation.env, OPENCODE_PASSWORD: password },
+    label: `opencode-server:${path.basename(invocation.cwd)}`,
+    policy: { allowedDomains: invocation.domains },
+  });
+  // Its stdout is never read (a full pipe would stop it); stderr's tail explains a failed start.
+  child.stdout?.resume();
+  const said = stderrTail(child);
+  const url = `http://${LOOPBACK_HOST}:${port}`;
+  const listening = await ownServerListening(child, { url, password }, invocation.signal).catch(
+    async (err: unknown) => {
+      await stopOwnServer(child);
+      throw err;
+    },
+  );
+  if (listening) return { child, port, url, password };
+  if (await loopbackPortFree(port, LoopbackProtocol.Tcp)) throw await serverFailed(child, said);
+  return null;
+}
+
+/**
+ * Whether the server `child` came to listen at its `url`: true once it answers with its password,
+ * false when it exited first. Stopped by the session's stop; a server silent past its deadline is an error.
+ */
+async function ownServerListening(
+  child: ChildProcess,
+  server: { url: string; password: string },
+  signal: AbortSignal,
+): Promise<boolean> {
   const deadline = Date.now() + OWN_SERVER_READY_TIMEOUT_MS;
   const gone = (): boolean => child.exitCode !== null || child.signalCode !== null;
   let failed = false;
@@ -1173,7 +1210,7 @@ async function ownServerListening(child: ChildProcess, port: number, signal: Abo
   while (Date.now() < deadline) {
     signal.throwIfAborted();
     if (failed || gone()) return false;
-    if (await loopbackPortOpen(port)) return !gone();
+    if (await answersWithPassword(server)) return !gone();
     await sleep(OWN_SERVER_POLL_MS);
   }
   throw new Error(MESSAGE.OwnServerSilent);
@@ -1197,18 +1234,22 @@ async function serverFailed(child: ChildProcess, said: () => string): Promise<Er
   return new Error(MESSAGE.OwnServerFailed(words || MESSAGE.Stopped(child.exitCode)));
 }
 
-/** Whether a connection to `port` on this computer's loopback opens now. */
-function loopbackPortOpen(port: number): Promise<boolean> {
-  return new Promise((resolve) => {
-    const socket = connect({ port, host: LOOPBACK_HOST });
-    const settle = (open: boolean): void => {
-      socket.destroy();
-      resolve(open);
-    };
-    socket.setTimeout(OWN_SERVER_CONNECT_TIMEOUT_MS, () => settle(false));
-    socket.once("connect", () => settle(true));
-    socket.once("error", () => settle(false));
-  });
+/**
+ * Whether the server at `url` answers a request only its own password opens: a listener of another
+ * program, or another session's server, is never taken for it.
+ */
+async function answersWithPassword(server: { url: string; password: string }): Promise<boolean> {
+  const authorization = `Basic ${Buffer.from(`${SERVER_USER}:${server.password}`).toString("base64")}`;
+  try {
+    const response = await fetch(`${server.url}${OWN_SERVER_PROBE_PATH}`, {
+      headers: { authorization },
+      signal: AbortSignal.timeout(OWN_SERVER_PROBE_TIMEOUT_MS),
+    });
+    await response.body?.cancel();
+    return response.ok;
+  } catch {
+    return false;
+  }
 }
 
 /**

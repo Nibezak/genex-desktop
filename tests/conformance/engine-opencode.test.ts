@@ -8,10 +8,11 @@
 import assert from "node:assert/strict";
 import { constants } from "node:fs";
 import { access, mkdir, readFile, realpath, writeFile } from "node:fs/promises";
+import { createServer as createHttpServer } from "node:http";
 import { createServer, type Server } from "node:net";
 import path from "node:path";
 import { describe, it } from "node:test";
-import { setImmediate } from "node:timers/promises";
+import { setImmediate, setTimeout as sleep } from "node:timers/promises";
 import {
   OpenCodeEngine,
   type OpenCodeExec,
@@ -56,7 +57,8 @@ if (args[0] === "serve") {
     response.end(process.cwd());
   });
   server.on("error", () => process.exit(1));
-  server.listen({ port: Number(flag("--port")), host: flag("--hostname"), exclusive: true });
+  const listen = () => server.listen({ port: Number(flag("--port")), host: flag("--hostname"), exclusive: true });
+  setTimeout(listen, Number(process.env.STAND_IN_SERVE_DELAY_MS ?? 0));
 } else {
   const standalone = args.includes("--standalone");
   const brief = readFileSync(0, "utf8");
@@ -77,6 +79,10 @@ async function standInV2Cli(dir: string): Promise<string> {
   await writeCliLauncher(cli, `#!/bin/sh\nexec "${process.execPath}" "${script}" "$@"\n`, STAND_IN_V2_CLI);
   return cli;
 }
+
+/** When the other program takes the session's port, and how long the session's stand-in server takes to listen. */
+const FOREIGN_TAKES_MS = 200;
+const SLOW_SERVE_MS = 1_500;
 
 /** A listener on a loopback port (0: the system's pick). */
 async function listenOn(port: number): Promise<Server> {
@@ -404,6 +410,7 @@ describe("OpenCode sessions", () => {
     });
     const sandbox = {
       spawnLongLived: (request: Parameters<ProcessSandbox["spawnLongLived"]>[0]) => real.spawnLongLived(request),
+      enabled: true,
       loopbackPorts: () => range,
     };
     const seen: Array<Record<string, unknown>> = [];
@@ -432,6 +439,53 @@ describe("OpenCode sessions", () => {
     await new Promise((resolve) => freed.close(resolve));
   });
 
+  it("a 2.x session never takes another program's listener for its server: it moves to the next port", async () => {
+    const root = await tmpDir("opencode-foreign-");
+    const cli = await standInV2Cli(root);
+    const probe = await listenOn(0);
+    const top = portOf(probe);
+    await new Promise((resolve) => probe.close(resolve));
+    const real = await ProcessSandbox.create({
+      writableRoots: [root],
+      scratchDir: path.join(root, "scratch"),
+      secretPaths: [],
+      enabled: false,
+    });
+    const sandbox = {
+      spawnLongLived: (request: Parameters<ProcessSandbox["spawnLongLived"]>[0]) => real.spawnLongLived(request),
+      enabled: true,
+      loopbackPorts: () => [top - 5, top] as const,
+    };
+    // Another program takes the top port after the session found it free, while its server starts.
+    let foreign: Server | null = null;
+    const taking = sleep(FOREIGN_TAKES_MS).then(async () => {
+      foreign = createHttpServer((_request, response) => {
+        response.statusCode = 401;
+        response.end();
+      });
+      await new Promise<void>((resolve) => foreign?.listen({ port: top, host: "127.0.0.1", exclusive: true }, resolve));
+    });
+    const seen: Array<Record<string, unknown>> = [];
+    try {
+      const invocation = {
+        argv: ["run", "--format", "json", "--standalone"],
+        cwd: root,
+        prompt: "Write hello",
+        env: { STAND_IN_SERVE_DELAY_MS: String(SLOW_SERVE_MS) },
+        signal: new AbortController().signal,
+        domains: [],
+      };
+      for await (const event of openCodeEvents(sandbox, cli, invocation)) seen.push(event);
+    } finally {
+      await taking;
+      await real.dispose();
+      await new Promise((resolve) => foreign?.close(resolve));
+    }
+    const [event] = seen;
+    assert.notEqual(Number(new URL(String(event?.server)).port), top, "never the other program's port");
+    assert.equal(event?.status, 200, "the run reached its own server");
+  });
+
   it("a 2.x server that fails to start on a free port says why, never that every port is taken", async () => {
     const root = await tmpDir("opencode-serve-fails-");
     const cli = await standInV2Cli(root);
@@ -446,6 +500,7 @@ describe("OpenCode sessions", () => {
     });
     const sandbox = {
       spawnLongLived: (request: Parameters<ProcessSandbox["spawnLongLived"]>[0]) => real.spawnLongLived(request),
+      enabled: true,
       loopbackPorts: () => [top - 3, top] as const,
     };
     const invocation = {
@@ -476,6 +531,7 @@ describe("OpenCode sessions", () => {
     });
     const sandbox = {
       spawnLongLived: (request: Parameters<ProcessSandbox["spawnLongLived"]>[0]) => real.spawnLongLived(request),
+      enabled: true,
       loopbackPorts: () => null,
     };
     const seen: Array<Record<string, unknown>> = [];
