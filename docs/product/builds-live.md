@@ -31,10 +31,11 @@ AI** spends credits to a per-game cap, asking for declared mics.
 
 **Builds** lists Working now, then What changed, newest first; a finished run's
 build heads it. A row is a step: its mark, when it ended, what it made or how it stands, its
-pictures (at work: its agent's screen). Steps left out of the build (unused work too) gather under one “N left out” row. A failed build check is a row; the lead is one only while
+tiles, three then +N (at work: its agent's screen): sounds play, pictures open the viewer,
+cards list sounds. Left-out steps gather under one “N left out” row. A failed build check is a row; the lead is one only while
 it works itself. A pressed row opens under its unmoved header (arrows walk, Esc closes). Tries a pause cut off show Paused until added. **Follow up in chat** notes the
-next message to its build. Tabs (one per build; past three, one picker, newest first) and chat
-cards open earlier builds, by title. Past seven steps, the chat's Building card folds its done ones;
+next message to its build. Tabs (one per build; past three, one picker) and chat
+cards open earlier builds. Past seven steps, the chat's Building card folds its done ones;
 pressing one opens it here. Plan steps tick per save point (or show the lead's
 last words); done, it reads "Version N is in your game".
 

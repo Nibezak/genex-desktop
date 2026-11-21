@@ -6560,6 +6560,8 @@ export default {
   "Sees images": "Vê imagens",
   "Step {n} of {total} · {name}": "Passo {n} de {total} · {name}",
   "Version {version} is in your game": "A versão {version} já está no seu jogo",
+  "Show all {count}": "Ver todos os {count}",
+  "{at} of {count}": "{at} de {count}",
   "Add {cap} more": "Adicionar mais {cap}",
   Allow: "Permitir",
   "Genex's real models are switched off right now. Practice answers go on.":

@@ -6523,6 +6523,8 @@ export default {
   "Sees images": "Распознает изображения",
   "Step {n} of {total} · {name}": "Шаг {n} из {total} · {name}",
   "Version {version} is in your game": "Версия {version} уже в игре",
+  "Show all {count}": "Показать все {count}",
+  "{at} of {count}": "{at} из {count}",
   "Add {cap} more": "Добавить ещё {cap}",
   Allow: "Разрешить",
   "Genex's real models are switched off right now. Practice answers go on.":

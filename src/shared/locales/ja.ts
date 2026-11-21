@@ -6488,6 +6488,8 @@ export default {
   "Sees images": "画像認識",
   "Step {n} of {total} · {name}": "ステップ {n}/{total} · {name}",
   "Version {version} is in your game": "バージョン {version} がゲームに入りました",
+  "Show all {count}": "すべて表示（{count}）",
+  "{at} of {count}": "{at} / {count}",
   "Add {cap} more": "{cap} 追加",
   Allow: "許可",
   "Genex's real models are switched off right now. Practice answers go on.":
