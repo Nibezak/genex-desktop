@@ -6710,6 +6710,23 @@ a:focus-visible {
   object-fit: contain;
   background: #1d1e21;
 }
+/* The tool an asset was made with, on its picture's corner in Builds (inspector/pictures.tsx): the
+   marks are drawn for a dark tile, which reads on a light render and a dark one alike. */
+.made-with-mark {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  z-index: 1;
+  box-sizing: border-box;
+  width: 18px;
+  height: 18px;
+  padding: 3px;
+  border-radius: 5px;
+  object-fit: contain;
+  background: #1d1e21;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 10%);
+  pointer-events: none;
+}
 .making-corner {
   position: absolute;
   top: 12px;

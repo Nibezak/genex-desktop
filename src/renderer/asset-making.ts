@@ -8,7 +8,14 @@
  * one with no one tool is shown as Genex itself. Blender's jobs are Blender's. Any other plugin's
  * are shown by the outside tool it names, else by the plugin, with the plugin's own picture.
  */
-import { GenexTool, MakingKind, type MakingJob, MakingPhase } from "../shared/asset-making.ts";
+import {
+  GenexTool,
+  genexMaking,
+  isGenexSource,
+  MakingKind,
+  type MakingJob,
+  MakingPhase,
+} from "../shared/asset-making.ts";
 import { SECOND_MS } from "../shared/duration.ts";
 import { Source, sourceLabel } from "./assets-layout.ts";
 import { MakingDrawing } from "./making-art.ts";
@@ -65,6 +72,17 @@ export function makingTool(job: Pick<MakingJob, "source" | "tool">, plugin?: Mak
   if (job.source === Source.Blender) return routed(GenexTool.Blender);
   const name = job.tool?.trim() || plugin?.name || sourceLabel(job.source);
   return { name, mark: plugin?.icon ?? null };
+}
+
+/**
+ * The tool an asset a run delivered was made with, for the mark on its picture's corner: the tool
+ * Genex routed its operation to (Genex itself for one with no one tool), or Blender; null for any
+ * other plugin's, whose record keeps no picture of the tool.
+ */
+export function assetMaker(job: { source: string; operation: string | null }): MakingTool | null {
+  if (job.source === Source.Blender) return makingTool(job);
+  if (!isGenexSource(job.source)) return null;
+  return makingTool({ source: job.source, tool: genexMaking(job.operation)?.tool ?? undefined });
 }
 
 /** Everything one job says while its asset is being made. */
