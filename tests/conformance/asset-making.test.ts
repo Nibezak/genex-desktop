@@ -317,6 +317,15 @@ describe("what a job says: kind, drawing and tool", () => {
     assert.equal(made("blender", null)?.name, "Blender");
     for (const source of ["genex", "blender"]) assert.ok(made(source, null)?.mark?.startsWith("media/tools/"), source);
     assert.equal(made("sprite-forge", GenexOperation.Model), null, "another plugin's record keeps no mark");
+    assert.deepEqual(
+      [
+        made("genex", GenexOperation.Sfx)?.light,
+        made("genex", GenexOperation.Model)?.light,
+        made("blender", null)?.light,
+      ],
+      [true, false, false],
+      "ElevenLabs' mark is drawn light, Tripo's and Blender's are not",
+    );
   });
 
   it("keeps the Genex page's names for its generations", () => {

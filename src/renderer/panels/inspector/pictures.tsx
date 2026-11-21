@@ -27,7 +27,16 @@ export const IMAGE_OUTLINE = "0 0 0 1px var(--image-outline)";
 export function MadeWith({ job }: { job: { source: string; operation: string | null } }): JSX.Element | null {
   const tool = assetMaker(job);
   if (!tool?.mark) return null;
-  return <img data-made-with={tool.name} src={tool.mark} alt="" draggable={false} className="made-with-mark" />;
+  return (
+    <img
+      data-made-with={tool.name}
+      data-light-mark={tool.light || undefined}
+      src={tool.mark}
+      alt=""
+      draggable={false}
+      className="made-with-mark"
+    />
+  );
 }
 
 function Chip({ children, side }: { children: ReactNode; side: "left" | "right" }): JSX.Element {
