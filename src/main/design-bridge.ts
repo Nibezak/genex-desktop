@@ -40,7 +40,7 @@ const PAGE_COLOURS: Readonly<Record<DesignTheme, Readonly<Record<string, string>
   },
   [DesignTheme.Light]: {
     bg: DESIGN_PAGE_BACKGROUND[DesignTheme.Light],
-    inset: "#ececee",
+    inset: "#f3f3f5",
     ink: "#17181a",
     "ink-2": "#3b3d41",
     "ink-3": "#5f6368",
