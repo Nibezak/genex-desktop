@@ -34,10 +34,17 @@ disagrees with this preface, this preface wins.
 - A game that calls a model ships with the calls enabled. No switch, flag or setting leaves them
   off by default; the written lines are what the game plays when a call cannot answer.
 - The bench is not a gate. Until a bench has run for a prompt, the ceilings are provisional:
-  `maxCredits` 2 on each call, and on a budget `perCallMaxCredits` 2 and `perCallEstimateCredits` 1
+  `maxCredits` 2 on each call, and on a budget `perCallMaxCredits` 8 and `perCallEstimateCredits` 1
   (so a period's credits are its calls × 1). Each sits in a named constant whose comment says it is
   provisional, until `llm bench` measures it. This replaces the card's rule that only a benched
   figure is declared. When a bench runs, its figures replace the provisional ones.
+- A ceiling also bounds how long an answer may be, so a provisional one needs short answers: the
+  prompt states the answer's length, every string in the schema has a `maxLength`, and the call
+  passes `maxOutputTokens`. Each ceiling is one named constant, so one edit raises it.
+- A call that ends `provider_token_limit` was cut off because its ceiling is too low for that model:
+  the game plays the written line with its label, and the next call of that prompt declares twice
+  the `maxCredits`, up to the budget's `perCallMaxCredits`, for the rest of the session. That is why
+  the provisional budget allows 8 a call while a call starts at 2. A bench settles the figures.
 - Ask for the bench once. When its `genex__cli-paid` card is not approved, declined or left
   unanswered, ask no more and keep the feature on with the provisional ceilings; the final message
   says the ceilings are provisional and that a bench would replace them.
@@ -99,7 +106,7 @@ player text) is `play-time-models` in the `genex-recommendations` plugin.
 
 Other commands map onto Studio tools as the `genex` skill describes (`genex__skill {"name":"genex"}`).
 
-<!-- upstream @genex-ai/cli-demo/templates/skills/genex-llm-in-games/SKILL.md v1.44.0 sha256 38fddf6a4244f70d0b879ca532c5da9b7b5a1dbc6d655224e65bd118b212ebb7 -->
+<!-- upstream @genex-ai/cli-demo/templates/skills/genex-llm-in-games/SKILL.md v1.44.0 sha256 f89b7cd7b56dc77c4500dce71a4a021e403df07b24ee05714ac51e79aa184e41 -->
 ---
 name: genex-llm-in-games
 description: Call a language model from a running game — NPCs that answer in their own words, AI opponents, teammates and agents that plan and act, faction leaders, a narrator or game master, a judge of what the player typed, quests written per save. The PLAYER pays and approves on a Genex surface. Covers one-time calls and standing budgets, benchmarking the ceiling, streaming, the judge and every refusal.
@@ -298,7 +305,7 @@ sample really cost and was charged, then the numbers to declare:
   average rounded up to a whole credit: the honest figures a budget's disclosure
   is built on.
 
-Declare the printed numbers. Never guess them, never work them out from a
+Declare the printed numbers once a bench has run. Never work them out from a
 vendor's price list, never add a margin of your own. Full procedure — reading
 p50/p95, turning the loop into disclosure numbers, re-benchmarking after a
 prompt change — is in [references/pricing.md](references/pricing.md).
@@ -479,8 +486,7 @@ their spend, and a Stop; a Stop pressed there reaches the game as `grant_stopped
   on your machine, never something a shipped build does.
 - **Never hand-roll fetch to the runtime API** — the SDK owns the approval
   handshake, and a hand-rolled call cannot obtain one.
-- **Never hardcode a ceiling the bench did not print, a model id, a stand URL,
-  or a margin.**
+- **Never hardcode a model id, a stand URL or a margin.**
 - **Never let the model be an authority over money, items or rewards**
   (`$genex-monetization` owns what may move a wallet).
 
@@ -492,7 +498,7 @@ These are source contracts, not a claim that every stand runs this lane —
 - [ ] `npx genex llm models` says the lane is live
 - [ ] Model ids come from `getGenerationModels()`, never from source
 - [ ] The picker offers the featured set, labelled with the server's own `label`
-- [ ] `maxCredits` — and a budget's `perCallMaxCredits` / `perCallEstimateCredits` — are the figures `npx genex llm bench` printed, verbatim — never a charged number
+- [ ] `maxCredits` — and a budget's `perCallMaxCredits` / `perCallEstimateCredits` — are the figures `npx genex llm bench` printed, verbatim, or the provisional ceilings — never a charged number
 - [ ] No coin spelling (`estimateCoins`, `perCallMaxCoins`, `estimatedCoinsPerPeriod`) in new code
 - [ ] The schema uses only the accepted dialect (no `$ref`, `pattern`, `format`, `anyOf`, `default`)
 - [ ] A bench refused as `generation_limit` was answered with `npx genex llm status`, never a retry

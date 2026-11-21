@@ -75,8 +75,8 @@
     },
     "genex-llm-in-games/SKILL.md": {
       "source": "@genex-ai/cli-demo/templates/skills/genex-llm-in-games/SKILL.md",
-      "sha256": "38fddf6a4244f70d0b879ca532c5da9b7b5a1dbc6d655224e65bd118b212ebb7",
-      "bytes": 29761
+      "sha256": "f89b7cd7b56dc77c4500dce71a4a021e403df07b24ee05714ac51e79aa184e41",
+      "bytes": 29755
     },
     "genex-llm-in-games/references/pricing.md": {
       "source": "@genex-ai/cli-demo/templates/skills/genex-llm-in-games/references/pricing.md",

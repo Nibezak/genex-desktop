@@ -34,10 +34,17 @@ disagrees with this preface, this preface wins.
 - A game that calls a model ships with the calls enabled. No switch, flag or setting leaves them
   off by default; the written lines are what the game plays when a call cannot answer.
 - The bench is not a gate. Until a bench has run for a prompt, the ceilings are provisional:
-  `maxCredits` 2 on each call, and on a budget `perCallMaxCredits` 2 and `perCallEstimateCredits` 1
+  `maxCredits` 2 on each call, and on a budget `perCallMaxCredits` 8 and `perCallEstimateCredits` 1
   (so a period's credits are its calls × 1). Each sits in a named constant whose comment says it is
   provisional, until `llm bench` measures it. This replaces the card's rule that only a benched
   figure is declared. When a bench runs, its figures replace the provisional ones.
+- A ceiling also bounds how long an answer may be, so a provisional one needs short answers: the
+  prompt states the answer's length, every string in the schema has a `maxLength`, and the call
+  passes `maxOutputTokens`. Each ceiling is one named constant, so one edit raises it.
+- A call that ends `provider_token_limit` was cut off because its ceiling is too low for that model:
+  the game plays the written line with its label, and the next call of that prompt declares twice
+  the `maxCredits`, up to the budget's `perCallMaxCredits`, for the rest of the session. That is why
+  the provisional budget allows 8 a call while a call starts at 2. A bench settles the figures.
 - Ask for the bench once. When its `genex__cli-paid` card is not approved, declined or left
   unanswered, ask no more and keep the feature on with the provisional ceilings; the final message
   says the ceilings are provisional and that a bench would replace them.

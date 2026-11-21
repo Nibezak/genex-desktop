@@ -4194,7 +4194,7 @@ with the working dot, Checking fixes; none for a game Genex doesn't know) comes 
   `messages` options, with the four references that describe them and the design guide dropped),
   and the prefaces carry the API facts those passages held. The play-time model card's preface also
   wins over its bench-first rule: a game ships with its model calls on, on provisional ceilings
-  (`maxCredits` 2, a budget's `perCallMaxCredits` 2 and `perCallEstimateCredits` 1, marked in the
+  (`maxCredits` 2, a budget's `perCallMaxCredits` 8 so a call cut off as `provider_token_limit` can double its ceiling, and `perCallEstimateCredits` 1, marked in the
   code) until a bench replaces them, a bench card left unapproved is asked once; the final message
   says the AI answers only in the published draft on genex.games (the preview's local test mode
   answers `local_test_unsupported`) with the draft's link; the game labels its written lines
