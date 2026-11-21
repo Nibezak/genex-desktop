@@ -879,5 +879,10 @@
     {
       "section": "## Test it on this machine — CLI lane"
     }
+  ],
+  "genex-authoritative-multiplayer/references/module-api.md": [
+    {
+      "section": "## Asking a language model"
+    }
   ]
 }

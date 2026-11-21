@@ -29,19 +29,61 @@ disagrees with this preface, this preface wins.
   publish a draft with `genex__publish {"operation":"draft"}` first. `init --convert` does not
   apply in Studio.
 
+## The model calls ship on
+
+- A game that calls a model ships with the calls enabled. No switch, flag or setting leaves them
+  off by default; the written lines are what the game plays when a call cannot answer.
+- The bench is not a gate. Until a bench has run for a prompt, the ceilings are provisional:
+  `maxCredits` 2 on each call, and on a budget `perCallMaxCredits` 2 and `perCallEstimateCredits` 1
+  (so a period's credits are its calls × 1). Each sits in a named constant whose comment says it is
+  provisional, until `llm bench` measures it. This replaces the card's rule that only a benched
+  figure is declared. When a bench runs, its figures replace the provisional ones.
+- Ask for the bench once. When its `genex__cli-paid` card is not approved, declined or left
+  unanswered, ask no more and keep the feature on with the provisional ceilings; the final message
+  says the ceilings are provisional and that a bench would replace them.
+
+## Where the model answers
+
+- Studio's preview runs the game in local test mode: every model call there resolves
+  `{ status: 'failed', error: 'local_test_unsupported' }` before anyone is asked, so the preview
+  always plays the written lines. Only the published draft calls a model, opened on genex.games
+  signed in as the game's owner (anyone else gets `player_wallet_required` on a test build).
+- The draft comes from `genex__publish {"operation":"draft"}`, which the person approves. The final
+  message for a game that calls a model says in one line that its AI answers in the draft on
+  genex.games, signed in, and not in Studio's preview, and gives the draft's link.
+
+## When the written lines play, the game says so
+
+Whenever the game plays its written lines instead of a model (the preview's
+`local_test_unsupported`, the Genex app's `native_unsupported`, a guest, a declined or ended budget,
+a refusal), it shows a small visible label saying so and why, for example "Written lines: the AI
+answers on genex.games, not in this preview" or "Written lines: no AI budget". Never an error, and
+never a silent swap that reads as a broken AI.
+
+## A game that listens
+
+- A game that hears the player (speech recognition, `getUserMedia({ audio })`, voice chat)
+  declares the microphone for its Genex page in its `package.json`:
+  `"genex": { "capabilities": ["microphone"] }`. An undeclared build is refused the microphone on
+  its Genex page without the player being asked. A draft or gallery publish prints what the build is
+  given (`On its Genex page this build is given: microphone.`); the rules are in
+  `genex__skill {"name":"genex-threejs-embed-auth","file":"skills/genex-threejs-embed-auth/references/shells.md"}`.
+- Browser speech recognition (`SpeechRecognition`, `webkitSpeechRecognition`) exists in Chrome, Edge
+  and Safari, not Firefox. Studio's preview and the Genex app never grant the microphone. So a game
+  that listens also takes typed input, shown whenever recognition is missing or refused.
+
 ## Not in Studio yet
 
-The card below is from Genex CLI 1.44.0, ahead of the CLI Studio runs. These parts of that release
-are left out of it because Studio cannot run them yet:
+These parts of Genex CLI 1.44.0 are left out of the card below because Studio cannot run them yet:
 
 - `llm bench` takes no `system` or `messages` option here. Put the system text and a typical
   history into the bench prompt itself, so the measured size is the real call's.
 - Practice mode (`llm practice`), creator-paid budgets (`llm sponsor`, `sponsored: true`) and
-  `llm usage` are commands of that CLI. `features.sponsor` may read true on a stand; a game made
-  here still asks the player for the budget.
+  `llm usage` are commands Studio does not run. `features.sponsor` may read true on a stand; a game
+  made here still asks the player for the budget.
 - Model calls from a multiplayer server room (`shareWithRooms`, `lendSpendGrantToRoom`,
-  `ctx.models`) need a newer multiplayer SDK than Studio ships. `features.roomCalls` may read true
-  on a stand; a game made here calls the model from the player's page.
+  `ctx.models`) are not built here. `features.roomCalls` may read true on a stand; a game made here
+  calls the model from the player's page.
 - Unity, Godot, Rust and Unreal games have no model-call binding in Studio.
 
 `system`, `messages`, the controls and `features` work: Studio ships the SDK that has them.

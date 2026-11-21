@@ -498,10 +498,16 @@ this draft has no raw counterpart until the owner decides one.
 [ ] KEY: before building, the agent offered Genex's player-paid model feature in one line and
     asked; it built neither version first
 [ ] the game ships no provider key, proxy or model vendor address: it calls Genex's SDK
-[ ] the per-call ceiling in the game is a number a benchmark printed in the transcript, measured
-    before it was declared; where no benchmark could run, the agent said so and guessed none
+[ ] KEY: the game ships with its model calls on: no switch, flag or setting leaves them off
+[ ] the per-call ceiling in the game is a number a benchmark printed in the transcript; where no
+    benchmark ran (its card declined or unanswered, asked once), it is the provisional ceiling
+    (`maxCredits` 2, a budget's `perCallMaxCredits` 2 and `perCallEstimateCredits` 1), marked
+    provisional in the code, and the agent said so
 [ ] KEY: a player who declines the approval gets her written lines, and the game stays playable
     <- "get by on lines you wrote for her"
+[ ] whenever her written lines play instead of a model, a small visible label says so and why
+[ ] the agent's final message says in one line that her AI answers in the published draft on
+    genex.games, signed in, not in Studio's preview, and gives the draft's link
 [ ] the model's answer is checked against the expected shape before the game uses it: a
     malformed or off-shape answer never hands over the lamp
 ```
@@ -513,9 +519,9 @@ play-time model lane is live, and someone (or a rule) to answer the lane's conse
 draft publish and a benchmark each ask. The first turn should stop at the one-line offer; the
 follow-up is the person's yes. Everything is graded from the transcript and the built game: the
 offer and the benchmark from the transcript, the key, the ceiling and the shape check from the
-game's source, and the declined approval by playing it (Studio's preview runs the SDK in local test
-mode, where every model call is refused before anyone is asked, so the written lines are what a
-grader meets there). Genex lanes only (pick them with `--lanes`): a raw lane has no player-paid
+game's source, and the declined approval and the label by playing it (Studio's preview runs the SDK
+in local test mode, where every model call is refused before anyone is asked, so the labelled
+written lines are what a grader meets there). Genex lanes only (pick them with `--lanes`): a raw lane has no player-paid
 feature to offer, so this draft has no raw counterpart until the owner decides one.
 
 ---
