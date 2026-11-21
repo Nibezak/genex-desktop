@@ -185,8 +185,8 @@ settings of whoever started it, so each session runs a private one inside `Proce
 the sandbox fences loopback (Windows, `loopbackPorts`), `openCodeEvents` starts that server itself:
 `opencode serve --stdio --port <n>` in the same sandbox, folder and environment, on the highest
 free port of the range that no other session holds, with a password made for it (`--stdio` makes it
-forget the password before any tool runs, and end when its stdin, held by the live-input relay,
-closes); it counts as up once it answers that password, and the run gets `--server` in place of `--standalone`,
+drop the password from the environment its tools inherit, as `--standalone` does, and end when its
+stdin, held by the live-input relay, closes); it counts as up once it answers that password, and the run gets `--server` in place of `--standalone`,
 whose server listens on a port of the system's choosing that the session may not connect to
 ("Transport: EACCES" from 2.2: newer 2.x reaches loopback past the sandbox's proxy). The server is
 stopped with its session; with every port of the range held, the session says so. 2.x

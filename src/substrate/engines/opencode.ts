@@ -1176,10 +1176,10 @@ async function serverOnPort(
 ): Promise<OwnServer | null> {
   const { port, password } = claim;
   if (!(await loopbackPortFree(port, LoopbackProtocol.Tcp))) return null;
-  // `--stdio` as `--standalone` starts it: the server forgets its password before any tool of the
-  // session runs (commands it starts would read it otherwise), and it ends when its stdin closes,
-  // so a Genex that quits without stopping it frees its port. srt-win passes no stdin of the child
-  // on: the live-input relay holds it.
+  // `--stdio` as `--standalone` starts it: the server drops the password from the environment its
+  // tools inherit, and it ends when its stdin closes. srt-win passes no stdin of the child on: the
+  // live-input relay holds it. As with `--standalone`, a command of the session that reads another
+  // process's environment can still find the password; the sandbox's own limits hold either way.
   const serve = [binary, "serve", "--stdio", "--hostname", LOOPBACK_HOST, "--port", String(port)];
   const { child, input } = await sandbox.spawnLongLived({
     command: serve.map(shellQuote).join(" "),
