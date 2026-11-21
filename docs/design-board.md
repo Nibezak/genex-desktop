@@ -26,7 +26,7 @@ the person agrees to.
   through the asset preview, which reads `docs/design/` beside a game's asset folders
   (`main/core/assets.ts`). A **page** is a sheet in the
   app's own look (dark or light with the app, Genex's typefaces), 1200 px wide and at least 800 px
-  tall, that grows to what it holds (to 4000 × 12000) and never scrolls.
+  tall, that grows to what it holds (to 4000 × 12000) and never scrolls or shows a scrollbar.
 - **No buttons on a page.** A page is read, not pressed: the person answers on the canvas (notes,
   picks) and in the chat. A link to another page brings it into view and an `https` link opens in
   the browser. A page written when pages had buttons (`data-say`) no longer shows them.

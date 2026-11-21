@@ -32,6 +32,7 @@ import {
   designSection,
   DesignSignal,
   type DesignSpot,
+  DESIGN_PAGE_BACKGROUND,
   DesignTheme,
   displayName,
   themedPageUrl,
@@ -191,9 +192,11 @@ export default function DesignStage({ project, board }: { project: string; board
   const dropOnWall = useRef<DropOnWall | null>(null);
   const drop = useDrop(project, dropOnWall);
   const making = useMaking(project, board.items);
+  const theme = useAppTheme();
   return (
     <div
       data-design-stage=""
+      style={{ "--design-page-bg": DESIGN_PAGE_BACKGROUND[theme] } as CSSProperties}
       data-design-dragging={drop.dragging ? "" : undefined}
       className="absolute inset-0 [&[data-design-dragging]_iframe]:pointer-events-none"
       {...drop.handlers}
