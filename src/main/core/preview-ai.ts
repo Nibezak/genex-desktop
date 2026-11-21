@@ -218,6 +218,17 @@ export class PreviewAiService {
     await this.#letGo(project);
   }
 
+  /**
+   * Preview `handle` shows `project`, whose code calls no play-time model (any more): it lets go of
+   * the helper, and in Live the bar goes, unless real models were approved for the game.
+   */
+  async noModels(handle: string, project: string): Promise<void> {
+    await this.release(handle);
+    const idle = handle === this.#liveHandle && !this.#approved.has(project);
+    if (idle && this.state(project).mode !== PreviewAiMode.None)
+      this.#set(project, { mode: PreviewAiMode.None, reason: null, error: null });
+  }
+
   /** Stop the helpers of `project` no preview shows any more: its real-model one goes with Live. */
   async #letGo(project: string): Promise<void> {
     const shown = [...this.#holders.values()].includes(project);

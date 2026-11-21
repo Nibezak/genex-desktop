@@ -136,6 +136,15 @@ describe("practice answers in every preview", () => {
     assert.equal(await ai.keyFor(LIVE, "inn"), null, "nothing starts once the app is quitting");
   });
 
+  it("takes the bar away once Live's game calls no model any more", async () => {
+    const { ai, pids } = await service();
+    await ai.keyFor(LIVE, "inn");
+    await ai.noModels(LIVE, "inn");
+    assert.equal(ai.state("inn").mode, PreviewAiMode.None);
+    assert.deepEqual(ai.runningPids(), []);
+    for (const pid of pids) assert.equal(running(pid), false);
+  });
+
   it("goes on without a key when the helper fails, and says so", async () => {
     const { ai } = await service({
       mock: { first: { command: "llm practice", status: "failed", error: "boom", code: "EACCES" } },

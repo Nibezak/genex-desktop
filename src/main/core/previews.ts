@@ -536,7 +536,7 @@ export class PreviewService {
     const holder = this.#holderOf(port);
     const calls = loopback && (await gameCallsPlayTimeModels(dir));
     const key = calls ? await this.#core.previewAi.keyFor(holder, project) : null;
-    if (!calls) await this.#core.previewAi.release(holder);
+    if (!calls) await this.#core.previewAi.noModels(holder, project);
     if (holder === LIVE_HANDLE) this.#liveKeyed = key !== null;
     return key;
   }
