@@ -27,7 +27,7 @@ network is open as a page's. Other folders' views:
 [projects](projects-engines.md#lives-views).
 
 Previews answer model calls with free [practice](../../src/main/core/preview-ai.ts); Live's **Use real
-AI** spends credits to a cap; it asks for declared mics.
+AI** spends credits to a per-game cap, asking for declared mics.
 
 **Builds** lists Working now, then What changed, newest first; a finished run's
 build heads it. A row is a step: its mark, when it ended, what it made or how it stands, its
