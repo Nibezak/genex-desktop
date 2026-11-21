@@ -51,21 +51,31 @@ disagrees with this preface, this preface wins.
 
 ## Where the model answers
 
-- Studio's preview runs the game in local test mode: every model call there resolves
-  `{ status: 'failed', error: 'local_test_unsupported' }` before anyone is asked, so the preview
-  always plays the written lines. Only the published draft calls a model, opened on genex.games
-  signed in as the game's owner (anyone else gets `player_wallet_required` on a test build).
-- The draft comes from `genex__publish {"operation":"draft"}`, which the person approves. The final
-  message for a game that calls a model says in one line that its AI answers in the draft on
-  genex.games, signed in, and not in Studio's preview, and gives the draft's link.
+- Studio's preview runs a game that calls a model beside Genex's practice helper: every call there
+  (`requestSpendGrant`, `generate`, `generateStream`, `judge`, `getGenerationModels`) answers at
+  once, free and made up, with `source: 'practice'`, and a budget is approved by the helper. Your own
+  preview windows get these answers too, so you can watch the feature work. A practice answer is a
+  real answer for wiring: the game shows it, streams it and applies it exactly as a model's, and
+  never treats `source: 'practice'` as a refusal or a reason to play the written lines. Do not judge
+  the writing of a practice answer: it proves the wiring, not the model.
+- In Live, the person can press Use real AI and approve a credit cap: real models then answer in
+  the preview, billed to the game's published draft from their own credits. Only they can switch it;
+  your windows always get practice answers. Real models need the game's draft, from
+  `genex__publish {"operation":"draft"}`, which the person approves.
+- On genex.games the published draft calls the real model for its owner, signed in (anyone else gets
+  `player_wallet_required` on a test build).
+- The final message for a game that calls a model says in one line that Live answers with practice
+  answers until the person presses Use real AI there (which needs a published draft and spends their
+  credits up to the cap they choose), and that the draft on genex.games uses the real model; give
+  the draft's link when there is one.
 
 ## When the written lines play, the game says so
 
-Whenever the game plays its written lines instead of a model (the preview's
-`local_test_unsupported`, the Genex app's `native_unsupported`, a guest, a declined or ended budget,
-a refusal), it shows a small visible label saying so and why, for example "Written lines: the AI
-answers on genex.games, not in this preview" or "Written lines: no AI budget". Never an error, and
-never a silent swap that reads as a broken AI.
+Whenever the game plays its written lines instead of a model (the Genex app's `native_unsupported`,
+a guest, a declined or ended budget, a refusal, `local_test_unsupported` where no helper answers),
+it shows a small visible label saying so and why, for example "Written lines: no AI budget". Never
+an error, and never a silent swap that reads as a broken AI. A practice answer is not a fallback and
+gets no such label.
 
 ## A game that listens
 
@@ -75,9 +85,14 @@ never a silent swap that reads as a broken AI.
   its Genex page without the player being asked. A draft or gallery publish prints what the build is
   given (`On its Genex page this build is given: microphone.`); the rules are in
   `genex__skill {"name":"genex-threejs-embed-auth","file":"skills/genex-threejs-embed-auth/references/shells.md"}`.
-- Browser speech recognition (`SpeechRecognition`, `webkitSpeechRecognition`) exists in Chrome, Edge
-  and Safari, not Firefox. Studio's preview and the Genex app never grant the microphone. So a game
-  that listens also takes typed input, shown whenever recognition is missing or refused.
+- Studio's Live preview grants the microphone to a game that declares it, once the person allows it
+  in Live's bar (`getUserMedia({ audio: true })` then works; video never does). Your own preview
+  windows never get it, and the Genex app never grants it. Browser speech recognition
+  (`SpeechRecognition`, `webkitSpeechRecognition`) exists in Chrome, Edge and Safari, not Firefox; in
+  Studio's preview the object exists but does not recognise speech (it needs Google's speech service,
+  which Studio's browser does not have), so build listening on the microphone's audio, or on
+  recognition with a fallback. A game that listens always also takes typed input, shown whenever
+  recognition or the microphone is missing or refused.
 
 ## Not in Studio yet
 

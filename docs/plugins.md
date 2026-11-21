@@ -4189,18 +4189,21 @@ working dot; none for a game Genex doesn't know) comes from
   `genex` plugin keeps Genex's product requirements and API facts: Studio's cuts (`cuts.json`, a
   section, a run of lines, a replaced sentence or a dropped reference, each matching the pinned text
   exactly once) take Genex's design and process advice out of the vendored text, and the steps
-  Studio refuses (the play-time model cards' `init --convert` and `llm price`) or cannot run yet
-  (from CLI 1.44.0: practice mode, creator-paid budgets, model calls from a server room, with the
+  Studio refuses (the play-time model cards' `init --convert` and `llm price`), runs itself (practice
+  mode: Studio starts `llm practice` beside each preview, so an agent never runs it) or cannot run
+  yet (from CLI 1.44.0: creator-paid budgets, model calls from a server room, with the
   server-authoritative card's `ctx.models` section, the engine bindings and the bench's `system` and
   `messages` options, with the four references that describe them and the design guide dropped),
   and the prefaces carry the API facts those passages held. The play-time model card's preface also
   wins over its bench-first rule: a game ships with its model calls on, on provisional ceilings
   (a call starts at `maxCredits` 4, a budget's `perCallMaxCredits` is 16 so a call cut off as `provider_token_limit` can double its `maxCredits` up to 16, and `perCallEstimateCredits` stays 1, marked in the
-  code) until a bench replaces them, a bench card left unapproved is asked once; the final message
-  says the AI answers only in the published draft on genex.games (the preview's local test mode
-  answers `local_test_unsupported`) with the draft's link; the game labels its written lines
-  whenever they play instead; and a game that listens declares `microphone` in its `package.json`
-  and keeps a typed input, since speech recognition is missing in Firefox and in Studio's preview. That advice, reworded as optional, is the bundled
+  code) until a bench replaces them, a bench card left unapproved is asked once; Studio's previews
+  answer with practice answers (`source: 'practice'`), which the game wires as real answers, and the
+  person can switch Live to real models ([Builds and Live](product/builds-live.md#the-two-views)), so
+  the final message says so and gives the draft's link; the game labels its written lines whenever
+  they play instead; and a game that listens declares `microphone` in its `package.json` (Live then
+  asks the person for it) and keeps a typed input, since speech recognition is missing in Firefox
+  and does not recognise speech in Studio's preview. That advice, reworded as optional, is the bundled
   `genex-recommendations` plugin (skills only: multiplayer patterns, cover craft, asset sources, shop
   design, player experience, play-time models), which works under the hood of Genex (see
   [First-party privileges](#first-party-privileges)). Genex's currency is Nex (the cards
