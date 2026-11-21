@@ -294,6 +294,35 @@ describe("real models in Live, approved once with a cap", () => {
       await ai.stopAll();
     }
   });
+
+  it("holds every run of a game to the one cap the person approved: a later run gets what is left", async () => {
+    const spent = { event: "live", kind: "generate", chargedCredits: 55, heldCredits: 5, capCredits: 100 };
+    const { ai, launches } = await service({ live: { first: listening(41001, "live"), later: [spent] } });
+    const paid = () => launches.filter((launch) => launch.live !== null).map((launch) => launch.live?.maxCredits);
+    try {
+      await ai.startRealModels("inn", 100);
+      await ai.keyFor(LIVE, "inn");
+      await sleep(300);
+      await ai.release(LIVE);
+      assert.equal(await ai.keyFor(LIVE, "inn"), `genex_llm_practice=41001.${HEX}`, "Play goes on with real models");
+      assert.deepEqual(paid(), [100, 40], "the second run may spend only what the first left");
+      await sleep(300);
+      assert.equal(
+        ai.state("inn").chargedCredits,
+        115,
+        "the bar counts both runs, a held bill of an ended one as spent",
+      );
+      await ai.release(LIVE);
+      assert.equal(await ai.keyFor(LIVE, "inn"), `genex_llm_practice=41000.${HEX}`, "nothing left: made-up answers");
+      assert.deepEqual(paid(), [100, 40], "no third paid run without a new Start");
+      assert.equal(ai.state("inn").mode, PreviewAiMode.CapReached);
+      await ai.startRealModels("inn", 300);
+      await ai.keyFor(LIVE, "inn");
+      assert.deepEqual(paid(), [100, 40, 300], "a new Start is a new cap, counted from nothing");
+    } finally {
+      await ai.stopAll();
+    }
+  });
 });
 
 describe("which games call play-time models", () => {

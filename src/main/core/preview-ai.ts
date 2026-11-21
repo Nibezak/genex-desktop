@@ -11,7 +11,9 @@
  * Start for a cap in Live's bar (`startRealModels`): the helper is then started with `--live --max-credits
  * <cap> --user-approved`, billed to the game's hosted project from the person's own credits, and the
  * CLI holds the whole run to the cap. An agent's window never gets that key. The choice is kept per
- * game for this app session; a new app start begins in practice.
+ * game for this app session, and so is the cap: a run started after a Stop or a visit to another
+ * game may spend only what the runs before it left, and once nothing is left real models wait for a
+ * new Start. A new app start begins in practice.
  *
  * A helper lives while a preview shows its game: it stops when Live is stopped or moves to another
  * game, when an agent's window closes, and when the app quits.
@@ -95,8 +97,12 @@ interface Helper {
   root: string;
   /** Its key once it listens. */
   key: string | null;
-  /** The cap it was started with (real models only). */
+  /** The most it may spend (real models only): what was left of the approved cap when it started. */
   cap: number | null;
+  /** What it has charged and holds so far (real models only). */
+  spent: number;
+  /** Its spend was added to the game's (`#settle`). */
+  settled: boolean;
   closed: Promise<void>;
   /** Asked to stop by the service: its exit is no failure. */
   stopping: boolean;
@@ -166,6 +172,11 @@ export class PreviewAiService {
    * session: the only way a helper on real models is started (`#startLive`).
    */
   readonly #approved = new Map<string, number>();
+  /**
+   * What the ended runs under a game's approval charged and held, so the next run gets the rest of
+   * the cap and never the whole of it again. A held bill counts as spent.
+   */
+  readonly #spent = new Map<string, number>();
   readonly #states = new Map<string, PreviewAiState>();
   #closing = false;
 
@@ -249,9 +260,10 @@ export class PreviewAiService {
       this.#set(project, { mode: PreviewAiMode.Unavailable, reason, error: null, capCredits: null });
       return this.state(project);
     }
-    // A new cap starts a new run: the one on the old cap ends first.
-    this.#approved.set(project, capCredits);
+    // A new cap starts a new run, counted from nothing: the one on the old cap ends first.
     await this.#stop(PracticeKind.Live, project);
+    this.#approved.set(project, capCredits);
+    this.#spent.delete(project);
     this.#set(project, {
       mode: PreviewAiMode.Starting,
       reason: null,
@@ -268,6 +280,7 @@ export class PreviewAiService {
   async backToPractice(project: string): Promise<PreviewAiState> {
     this.#approved.delete(project);
     await this.#stop(PracticeKind.Live, project);
+    this.#spent.delete(project);
     this.#set(project, { mode: PreviewAiMode.Practice, reason: null, error: null, capCredits: null });
     await this.#deps.reloadLive(project);
     return this.state(project);
@@ -288,7 +301,13 @@ export class PreviewAiService {
   async #startLive(project: string): Promise<Helper | null> {
     const cap = this.#approved.get(project);
     if (cap === undefined) return null;
-    const helper = await this.#ensure(PracticeKind.Live, project, cap);
+    const running = this.#helpers.get(`${PracticeKind.Live}:${project}`);
+    const left = Math.floor(cap - (this.#spent.get(project) ?? 0));
+    if (!running && left < 1) {
+      this.#set(project, { mode: PreviewAiMode.CapReached });
+      return null;
+    }
+    const helper = await this.#ensure(PracticeKind.Live, project, left);
     if (helper?.key) {
       if (this.state(project).mode === PreviewAiMode.Starting) this.#set(project, { mode: PreviewAiMode.Live });
       return helper;
@@ -331,7 +350,18 @@ export class PreviewAiService {
       return null;
     }
     const closed = new Promise<void>((resolve) => spawned.child.once("close", () => resolve()));
-    const helper: Helper = { kind, project, child: spawned.child, root, key: null, cap, closed, stopping: false };
+    const helper: Helper = {
+      kind,
+      project,
+      child: spawned.child,
+      root,
+      key: null,
+      cap,
+      spent: 0,
+      settled: false,
+      closed,
+      stopping: false,
+    };
     const id = `${kind}:${project}`;
     this.#helpers.set(id, helper);
     void closed.then(() => this.#ended(id, helper));
@@ -390,7 +420,10 @@ export class PreviewAiService {
     if (line.event === PracticeEvent.Live) {
       const charged = credits(line.chargedCredits);
       const held = credits(line.heldCredits);
-      if (charged !== null && held !== null) this.#set(helper.project, { chargedCredits: charged, heldCredits: held });
+      if (charged === null || held === null) return;
+      helper.spent = charged + held;
+      const before = this.#spent.get(helper.project) ?? 0;
+      this.#set(helper.project, { chargedCredits: before + charged, heldCredits: held });
       return;
     }
     const capSpent = line.event === PracticeEvent.Call && line.via === VIA_LIVE && CAP_SPENT.has(String(line.error));
@@ -402,7 +435,7 @@ export class PreviewAiService {
     const code = typeof error === "object" && error !== null ? Reflect.get(error, "code") : undefined;
     const known = Object.values(PreviewAiUnavailable).find((reason) => reason === code);
     const words = typeof error === "string" ? error : errorMessage(error);
-    if (kind === PracticeKind.Live) this.#approved.delete(project);
+    if (kind === PracticeKind.Live) this.#forget(project);
     this.#set(project, {
       mode: kind === PracticeKind.Live ? PreviewAiMode.Unavailable : PreviewAiMode.Practice,
       reason: known ?? PreviewAiUnavailable.HelperFailed,
@@ -413,12 +446,27 @@ export class PreviewAiService {
 
   /** Genex's model lane is off: practice answers go on, and the bar says why. */
   #laneOff(project: string): void {
-    this.#approved.delete(project);
+    this.#forget(project);
     this.#set(project, { mode: PreviewAiMode.Unavailable, reason: PreviewAiUnavailable.LaneOff, capCredits: null });
+  }
+
+  /** The person's approval for a game ends, and what its runs spent with it. */
+  #forget(project: string): void {
+    this.#approved.delete(project);
+    this.#spent.delete(project);
+  }
+
+  /** Add an ended real-model run's spend to its game's, once. */
+  #settle(helper: Helper): void {
+    if (helper.kind !== PracticeKind.Live || helper.settled) return;
+    helper.settled = true;
+    if (!this.#approved.has(helper.project)) return;
+    this.#spent.set(helper.project, (this.#spent.get(helper.project) ?? 0) + helper.spent);
   }
 
   /** A helper's process ended: forget it; a real-model run that ended on its own falls back to practice. */
   async #ended(id: string, helper: Helper): Promise<void> {
+    this.#settle(helper);
     await rm(helper.root, { recursive: true, force: true }).catch(() => {});
     if (this.#helpers.get(id) !== helper) return;
     this.#helpers.delete(id);
@@ -457,6 +505,7 @@ export class PreviewAiService {
     waiting.abort();
     if (!ended) await treeKiller(helper.child)();
     await helper.closed;
+    this.#settle(helper);
     await rm(helper.root, { recursive: true, force: true }).catch(() => {});
   }
 
