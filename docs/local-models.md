@@ -1,18 +1,38 @@
 # Managed local models
 
-Studio offers Bonsai 2 27B on Apple Silicon Macs with at least 16 GiB RAM. PQ2_0 is the
-Best fit on those Macs up to 96 GB; PTQ1_0 is the smaller alternative. A local model leads the
-automatic choice, so a chat with nothing else to run opens on it. A model that finishes downloading
-never replaces the model a chat already shows: the chat keeps it as its pick, which a game chat or
-Home also hands to new games (`keptShownModel`), and the new model joins the picker. Only the
-download counts; Ollama starting or a list growing as the app opens moves nothing. Explicit picks
-always remain selected.
+Studio offers Bonsai 2 27B on Apple Silicon Macs with at least 16 GiB RAM. PQ2_0 is the Best fit on
+Macs up to 47 GB; PTQ1_0 is the smaller alternative. From 48 GB, Best fit on Apple Silicon is
+Inkling 2 Mini (`inkling-2-mini:26b-a5b`, through Ollama 0.40.17 or later, vision and tools), with
+Bonsai PQ2_0 next up to 96 GB. While Ollama does not answer, the welcome's local screen offers the
+first pick that installs without it (Bonsai), since that screen cannot install Ollama; Settings
+keeps the ranking. A model the running Ollama is too old to pull (the catalog's `requiresOllama`,
+such as Inkling before 0.40.17) is never a pick there or in Settings; it stays under More models.
+Both read the version again when Ollama starts answering. The welcome screen keeps a model that is
+downloading or already installed from the picks. Below 48 GB Inkling is not offered: on a 32 GB Mac
+it ran out of GPU memory before answering Genex's first prompt, although the fit rule below
+estimates that it fits. Ollama ships Inkling only as an MLX build, so Windows and Linux keep their
+own picks until Ollama runs it there.
+
+A local model leads the automatic choice, so a chat with nothing else to run opens on it. A model
+that finishes downloading never replaces the model a chat already shows: the chat keeps it as its
+pick, which a game chat or Home also hands to new games (`keptShownModel`), and the new model joins
+the picker. Only the download counts; Ollama starting or a list growing as the app opens moves
+nothing. Explicit picks always remain selected.
+
+Inkling on a PC today goes through a model server rather than Ollama: Unsloth's GGUF builds
+(`unsloth/Inkling-2-Mini-GGUF`, 8 to 23 GB) run on Unsloth's llama.cpp prebuilts, and on
+mainline llama.cpp once ggml-org/llama.cpp #32704 lands (the looped layers). `llama-server --jinja`
+answers on port 8080, which Local server finds by itself ([your own model
+server](connections-and-context.md#your-own-model-server)), so game chats and builds run on it
+with no Genex change. When Ollama can pull a build for Windows and Linux, add it to the catalog as
+the portable entry with `mlx` naming `inkling-2-mini:26b-a5b`, which then stays the Apple Silicon
+build, and measure it on a PC before ranking it.
 
 `substrate/models-catalog.json` holds one entry per model: name, size, tools, vision and a
 one-line `about` of at most 60 characters. Measurement evidence lives in `notes`, which is never
 displayed. Each RAM tier ranks model ids; `recommendModels` shows the ranked models that fit, and
-the first is Best fit. From 128 GB, Best fit is Qwen 3.5 122B (vision and tools); 192 GB adds
-Qwen 3.8 Flash Next. Every other model the architecture can run is under More models, smallest
+the first is Best fit. From 128 GB, Qwen 3.5 122B (vision and tools) follows Inkling 2 Mini; 192 GB
+adds Qwen 3.8 Flash Next. Every other model the architecture can run is under More models, smallest
 first, with "Needs a N GB Mac" when it does not fit (on a PC, "Needs ~N GB to run"). Download is
 offered only for a model that fits. One build per model is shown: MLX on Apple Silicon, the
 portable GGUF elsewhere. The fit rule is weights + KV cache (0.5–3 GB) + 1.5 GB within 72% of

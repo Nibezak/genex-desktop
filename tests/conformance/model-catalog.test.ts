@@ -74,11 +74,44 @@ describe("model catalog", () => {
     assert.ok(hardware.usableModelGb >= 23, `Metal is handed ~76% of unified memory, got ${hardware.usableModelGb}`);
   });
 
-  it("makes Qwen 3.5 122B the Best fit on 128 GB and larger Apple Silicon Macs", async () => {
-    for (const ram of [128, 192]) {
+  it("makes Inkling 2 Mini the Best fit on Apple Silicon Macs from 48 GB, Bonsai PQ2_0 next", async () => {
+    for (const ram of [48, 64, 96, 128, 192]) {
       const { defaultModel, picks } = await recommendModels(machine(ram, true));
-      assert.equal(defaultModel, "qwen3.5:122b");
-      assert.ok(picks[0]?.vision && picks[0].tools, "the large-Mac Best fit must build and see the game");
+      assert.equal(defaultModel, "inkling-2-mini:26b-a5b", `${ram} GB`);
+      assert.ok(picks[0]?.vision && picks[0].tools, "the Best fit must build and see the game");
+    }
+    assert.equal((await recommendModels(machine(48, true))).picks[1]?.model, "bonsai-2:27b-pq2_0");
+  });
+
+  it("never offers Inkling 2 Mini below 48 GB, where it ran out of memory on Genex's first prompt", async () => {
+    // Measured on a 32 GB M2 Max: the fit estimate said it fits, Metal failed at ~12K prompt tokens.
+    for (const ram of [16, 24, 32, 36]) {
+      const { defaultModel, picks, more } = await recommendModels(machine(ram, true));
+      assert.equal(defaultModel, "bonsai-2:27b-pq2_0", `${ram} GB`);
+      assert.ok(![...picks, ...more].some((p) => p.model.startsWith("inkling-2-mini")), `${ram} GB offers Inkling`);
+    }
+  });
+
+  it("never makes a model the running Ollama is too old to pull the Best fit", async () => {
+    // Ollama 0.32.14 refuses Inkling's pull (HTTP 412): Download would fail where Bonsai installs.
+    const old = await recommendModels(machine(64, true), "0.32.14");
+    assert.equal(old.defaultModel, "bonsai-2:27b-pq2_0");
+    assert.ok(!old.picks.some((p) => p.model === "inkling-2-mini:26b-a5b"));
+    assert.ok(
+      old.more.some((p) => p.model === "inkling-2-mini:26b-a5b"),
+      "still listed under More models",
+    );
+    for (const version of ["0.40.17", "0.41.0", null]) {
+      // No Ollama running: installing it now brings a version that can pull it.
+      const { defaultModel } = await recommendModels(machine(64, true), version);
+      assert.equal(defaultModel, "inkling-2-mini:26b-a5b", String(version));
+    }
+  });
+
+  it("never offers Inkling 2 Mini off Apple Silicon: Ollama ships only its MLX build", async () => {
+    for (const hw of [machine(64, false), pc(32, [RTX_24]), pc(64, [RTX_24])]) {
+      const { picks, more } = await recommendModels(hw);
+      assert.ok(![...picks, ...more].some((p) => p.model.startsWith("inkling-2-mini")));
     }
   });
 
