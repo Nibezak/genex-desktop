@@ -532,8 +532,6 @@ export default {
   Blur: "Unschärfe",
   "Bonsai currently requires an Apple Silicon Mac": "Bonsai braucht derzeit einen Mac mit Apple Silicon",
   "Bonsai installed · starts on demand": "Bonsai installiert · startet bei Bedarf",
-  "Bonsai is answering a chat or build. Delete the model when it finishes.":
-    "Bonsai antwortet gerade in einem Chat oder Build. Lösch das Modell, wenn es fertig ist.",
   "Bonsai requires Apple Silicon": "Bonsai braucht Apple Silicon",
   "Bonsai requires at least 16 GiB of memory.": "Bonsai braucht mindestens 16 GiB Arbeitsspeicher.",
   "Bonsai runtime is unavailable": "Bonsai-Runtime ist nicht verfügbar",
@@ -745,8 +743,8 @@ export default {
   Checkpoint: "Checkpoint",
   Choose: "Auswählen",
   "Choose Blender…": "Blender auswählen…",
-  "Choose PQ2_0 (recommended) or PTQ1_0 in Model setup.":
-    "Wähle in der Modelleinrichtung PQ2_0 (empfohlen) oder PTQ1_0.",
+  "Download Bonsai 2 27B or Bonsai 2 27B Lite in Settings › Local Models.":
+    "Lade Bonsai 2 27B oder Bonsai 2 27B Lite unter Einstellungen › Lokale Modelle herunter.",
   "Choose a PNG, JPEG or WebP image, or a valid cover recipe.":
     "Wähle ein PNG-, JPEG- oder WebP-Bild oder ein gültiges Cover-Rezept.",
   "Choose a coding model": "Wähle ein Coding-Modell",
@@ -6666,4 +6664,13 @@ export default {
   "The cap is used up": "Das Limit ist aufgebraucht",
   "This game wants to hear you through your microphone.": "Dieses Spiel möchte dich über dein Mikrofon hören.",
   "Use real AI": "Echte KI nutzen",
+  "A local model is answering a chat or build. Delete the model when it finishes.":
+    "Ein lokales Modell antwortet gerade in einem Chat oder Build. Lösch das Modell, wenn es fertig ist.",
+  "Download Inkling 2 Mini in Settings › Local Models.":
+    "Lade Inkling 2 Mini unter Einstellungen › Lokale Modelle herunter.",
+  "Download Inkling 2 Mini to build locally": "Lade Inkling 2 Mini herunter, um lokal zu bauen",
+  "Inkling 2 Mini installed · starts on demand": "Inkling 2 Mini installiert · startet bei Bedarf",
+  "Local models need an Apple Silicon Mac or a 64-bit Windows or Linux PC":
+    "Lokale Modelle brauchen einen Mac mit Apple Silicon oder einen 64-Bit-PC mit Windows oder Linux",
+  "{model} can't run on this computer.": "{model} läuft nicht auf diesem Computer.",
 } satisfies LocaleCatalog;

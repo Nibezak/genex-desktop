@@ -476,8 +476,6 @@ export default {
   Blur: "ぼかし",
   "Bonsai currently requires an Apple Silicon Mac": "Bonsaiには現在、Appleシリコン搭載のMacが必要です",
   "Bonsai installed · starts on demand": "Bonsaiインストール済み · 必要なときに起動",
-  "Bonsai is answering a chat or build. Delete the model when it finishes.":
-    "Bonsaiがチャットかビルドで応答中です。終わってからモデルを削除してください。",
   "Bonsai requires Apple Silicon": "BonsaiにはAppleシリコンが必要です",
   "Bonsai requires at least 16 GiB of memory.": "Bonsaiには16 GiB以上のメモリが必要です。",
   "Bonsai runtime is unavailable": "Bonsaiランタイムを利用できません",
@@ -689,7 +687,8 @@ export default {
   Checkpoint: "チェックポイント",
   Choose: "選択",
   "Choose Blender…": "Blenderを選ぶ…",
-  "Choose PQ2_0 (recommended) or PTQ1_0 in Model setup.": "モデル設定でPQ2_0（推奨）かPTQ1_0を選んでください。",
+  "Download Bonsai 2 27B or Bonsai 2 27B Lite in Settings › Local Models.":
+    "設定 › ローカルモデルで Bonsai 2 27B か Bonsai 2 27B Lite をダウンロードしてください。",
   "Choose a PNG, JPEG or WebP image, or a valid cover recipe.":
     "PNG、JPEG、WebPの画像か、有効なカバーレシピを選んでください。",
   "Choose a coding model": "コーディングモデルを選んでください",
@@ -6516,4 +6515,13 @@ export default {
   "The cap is used up": "上限に達しました",
   "This game wants to hear you through your microphone.": "このゲームはマイクであなたの声を聞きたがっています。",
   "Use real AI": "本物の AI を使う",
+  "A local model is answering a chat or build. Delete the model when it finishes.":
+    "ローカルモデルがチャットかビルドで応答中です。終わってからモデルを削除してください。",
+  "Download Inkling 2 Mini in Settings › Local Models.":
+    "設定 › ローカルモデルで Inkling 2 Mini をダウンロードしてください。",
+  "Download Inkling 2 Mini to build locally": "ローカルで作るにはInkling 2 Miniをダウンロード",
+  "Inkling 2 Mini installed · starts on demand": "Inkling 2 Miniインストール済み · 必要なときに起動",
+  "Local models need an Apple Silicon Mac or a 64-bit Windows or Linux PC":
+    "ローカルモデルにはAppleシリコン搭載のMac、または64ビットのWindowsかLinuxのPCが必要です",
+  "{model} can't run on this computer.": "{model}はこのコンピュータでは動きません。",
 } satisfies LocaleCatalog;
