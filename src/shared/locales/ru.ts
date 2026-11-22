@@ -5577,6 +5577,7 @@ export default {
     "Проект {name} ещё не настроен для Genex. Сначала настрой его.",
   "{name} isn’t on this computer any more.": "Файла {name} больше нет на этом компьютере.",
   "{name} needs Studio {version} or newer": "Для {name} нужна Studio версии {version} или новее",
+  "{name} still isn't signed in.": "{name} всё ещё не подключён.",
   "{name} needs a sign-in": "{name}: нужен вход",
   "{name} opens in Unreal {to} from now on.": "{name} теперь будет открываться в Unreal {to}.",
   "{name} settings": "Настройки {name}",
@@ -6482,8 +6483,8 @@ export default {
     "Установи CLI Antigravity, чтобы собирать по твоему тарифу Google AI.",
   "Installing Antigravity. This can take a minute.": "Устанавливаем Antigravity. Это может занять минуту.",
   "Not signed in to Antigravity.": "Вход в Antigravity не выполнен.",
-  "Open the sign-in page, then paste the code it gives you here. Antigravity keeps the sign-in.":
-    "Открой страницу входа и вставь сюда код, который она даст. Antigravity сам хранит вход.",
+  "Sign in on Google's page in your browser, then paste the code it gives you here. Antigravity keeps the sign-in.":
+    "Войди на странице Google в браузере и вставь сюда код, который она даст. Antigravity сам хранит вход.",
   "Sign in to Antigravity from Settings › Model Providers.":
     "Войди в Antigravity в разделе «Настройки › Провайдеры моделей».",
   "Sign in with your Google account to build with your plan.":

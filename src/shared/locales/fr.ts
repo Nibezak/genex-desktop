@@ -5644,6 +5644,7 @@ export default {
     "{name} n’est pas encore configuré pour Genex. Configure-le d’abord.",
   "{name} isn’t on this computer any more.": "{name} n’est plus sur cet ordinateur.",
   "{name} needs Studio {version} or newer": "{name} nécessite Studio {version} ou plus récent",
+  "{name} still isn't signed in.": "{name} n’est toujours pas connecté.",
   "{name} needs a sign-in": "{name} demande une connexion",
   "{name} opens in Unreal {to} from now on.": "{name} s’ouvre désormais dans Unreal {to}.",
   "{name} settings": "Réglages de {name}",
@@ -6558,8 +6559,8 @@ export default {
     "Installe la CLI d’Antigravity pour créer avec ton forfait Google AI.",
   "Installing Antigravity. This can take a minute.": "Installation d’Antigravity. Ça peut prendre une minute.",
   "Not signed in to Antigravity.": "Tu n’es pas connecté à Antigravity.",
-  "Open the sign-in page, then paste the code it gives you here. Antigravity keeps the sign-in.":
-    "Ouvre la page de connexion, puis colle ici le code qu’elle te donne. Antigravity garde la connexion.",
+  "Sign in on Google's page in your browser, then paste the code it gives you here. Antigravity keeps the sign-in.":
+    "Connecte-toi sur la page de Google dans ton navigateur, puis colle ici le code qu’elle te donne. Antigravity garde la connexion.",
   "Sign in to Antigravity from Settings › Model Providers.":
     "Connecte-toi à Antigravity depuis Réglages › Fournisseurs de modèles.",
   "Sign in with your Google account to build with your plan.":

@@ -5239,6 +5239,7 @@ export default {
   "{name} isn't set up for Genex yet. Set it up first.": "{name} 尚未为 Genex 设置。请先设置。",
   "{name} isn’t on this computer any more.": "{name} 已不在这台电脑上。",
   "{name} needs Studio {version} or newer": "{name} 需要 Studio {version} 或更高版本",
+  "{name} still isn't signed in.": "{name} 仍未登录。",
   "{name} needs a sign-in": "{name} 需要登录",
   "{name} opens in Unreal {to} from now on.": "{name} 今后会在 Unreal {to} 中打开。",
   "{name} settings": "{name} 设置",
@@ -6083,8 +6084,8 @@ export default {
   "Install Antigravity's CLI to build with your Google AI plan.": "安装 Antigravity CLI，用你的 Google AI 套餐来制作。",
   "Installing Antigravity. This can take a minute.": "正在安装 Antigravity，可能需要一分钟。",
   "Not signed in to Antigravity.": "未登录 Antigravity。",
-  "Open the sign-in page, then paste the code it gives you here. Antigravity keeps the sign-in.":
-    "打开登录页面，把它给你的代码粘贴到这里。登录信息由 Antigravity 保存。",
+  "Sign in on Google's page in your browser, then paste the code it gives you here. Antigravity keeps the sign-in.":
+    "在浏览器中打开的 Google 页面上登录，然后把它给你的代码粘贴到这里。登录信息由 Antigravity 保存。",
   "Sign in to Antigravity from Settings › Model Providers.": "请在“设置 › 模型提供方”中登录 Antigravity。",
   "Sign in with your Google account to build with your plan.": "登录你的 Google 账号，用你的套餐来制作。",
   "Switch to another Google account": "切换到另一个 Google 账号",
